@@ -9,179 +9,171 @@
   content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
 >
 
-<title>WebXR 6DoF Test</title>
+<title>WebAR Exhibition</title>
 
 <style>
-  * {
-    box-sizing: border-box;
-  }
 
-  html,
-  body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #000;
-    font-family: Arial, sans-serif;
-  }
+* {
+  box-sizing: border-box;
+}
 
-  canvas {
-    display: block;
-  }
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  font-family: Arial, sans-serif;
+}
 
-  /* ======================================== */
-  /* START                                    */
-  /* ======================================== */
-
-  #start {
-    position: fixed;
-    inset: 0;
-    z-index: 100;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 30px;
-
-    background: #111;
-    color: white;
-
-    text-align: center;
-  }
-
-  #start-inner {
-    width: 100%;
-    max-width: 420px;
-  }
-
-  #start h1 {
-    margin: 0 0 15px;
-    font-size: 32px;
-  }
-
-  #start p {
-    margin: 0 0 25px;
-
-    opacity: 0.75;
-
-    font-size: 16px;
-    line-height: 1.5;
-  }
-
-  #start-button {
-    width: 100%;
-
-    padding: 18px;
-
-    border: 0;
-    border-radius: 14px;
-
-    background: white;
-    color: black;
-
-    font-size: 17px;
-    font-weight: bold;
-
-    cursor: pointer;
-  }
+canvas {
+  display: block;
+}
 
 
-  /* ======================================== */
-  /* DEBUG                                    */
-  /* ======================================== */
+/* ========================================= */
+/* START                                     */
+/* ========================================= */
 
-  #debug {
-    position: fixed;
+#start {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
 
-    top: 15px;
-    left: 15px;
-    right: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-    z-index: 50;
+  padding: 30px;
 
-    display: none;
+  background: #111;
+  color: white;
 
-    padding: 15px;
+  text-align: center;
+}
 
-    border-radius: 14px;
+#start-inner {
+  width: 100%;
+  max-width: 420px;
+}
 
-    background: rgba(0, 0, 0, 0.75);
-    color: white;
+#start h1 {
+  margin: 0 0 15px;
+  font-size: 32px;
+}
 
-    font-family: monospace;
-    font-size: 15px;
-    line-height: 1.6;
+#start p {
+  margin: 0 0 25px;
 
-    pointer-events: none;
-  }
+  opacity: 0.75;
 
-  #debug strong {
-    font-size: 17px;
-  }
+  font-size: 16px;
+  line-height: 1.5;
+}
 
+#start-button {
+  width: 100%;
 
-  /* ======================================== */
-  /* INSTRUKCJA                               */
-  /* ======================================== */
+  padding: 18px;
 
-  #instruction {
-    position: fixed;
+  border: 0;
+  border-radius: 14px;
 
-    bottom: 25px;
-    left: 50%;
+  background: white;
+  color: black;
 
-    transform: translateX(-50%);
+  font-size: 17px;
+  font-weight: bold;
 
-    z-index: 50;
-
-    display: none;
-
-    width: calc(100% - 30px);
-    max-width: 450px;
-
-    padding: 14px 18px;
-
-    border-radius: 14px;
-
-    background: rgba(0, 0, 0, 0.75);
-    color: white;
-
-    text-align: center;
-
-    font-size: 14px;
-    line-height: 1.4;
-
-    pointer-events: none;
-  }
+  cursor: pointer;
+}
 
 
-  /* ======================================== */
-  /* ERROR                                    */
-  /* ======================================== */
+/* ========================================= */
+/* INFO                                      */
+/* ========================================= */
 
-  #error {
-    position: fixed;
-    inset: 0;
+#instruction {
+  position: fixed;
 
-    z-index: 200;
+  top: 20px;
+  left: 50%;
 
-    display: none;
-    align-items: center;
-    justify-content: center;
+  transform: translateX(-50%);
 
-    padding: 30px;
+  z-index: 50;
 
-    background: #111;
-    color: white;
+  display: none;
 
-    text-align: center;
-  }
+  width: calc(100% - 30px);
+  max-width: 450px;
 
-  #error-inner {
-    max-width: 500px;
-  }
+  padding: 14px 18px;
+
+  border-radius: 14px;
+
+  background: rgba(0,0,0,0.72);
+  color: white;
+
+  text-align: center;
+
+  font-size: 14px;
+  line-height: 1.4;
+
+  pointer-events: none;
+}
+
+
+/* ========================================= */
+/* DEBUG                                     */
+/* ========================================= */
+
+#debug {
+  position: fixed;
+
+  bottom: 20px;
+  left: 20px;
+
+  z-index: 50;
+
+  display: none;
+
+  padding: 10px 14px;
+
+  border-radius: 10px;
+
+  background: rgba(0,0,0,0.65);
+  color: white;
+
+  font-family: monospace;
+  font-size: 12px;
+
+  pointer-events: none;
+}
+
+
+/* ========================================= */
+/* ERROR                                     */
+/* ========================================= */
+
+#error {
+  position: fixed;
+  inset: 0;
+
+  z-index: 200;
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  padding: 30px;
+
+  background: #111;
+  color: white;
+
+  text-align: center;
+}
 
 </style>
 </head>
@@ -190,22 +182,24 @@
 <body>
 
 
-<!-- ======================================== -->
-<!-- START                                    -->
-<!-- ======================================== -->
+<!-- ======================================= -->
+<!-- START                                   -->
+<!-- ======================================= -->
 
 <div id="start">
 
   <div id="start-inner">
 
-    <h1>WebXR 6DoF Test</h1>
+    <h1>Wystawa AR</h1>
 
     <p>
-      Ten test sprawdzi, czy telefon poprawnie
-      śledzi fizyczne przemieszczanie się
-      w przestrzeni.
+      Skieruj telefon na podłogę.
       <br><br>
-      Po uruchomieniu skieruj telefon na podłogę.
+      Kiedy pojawi się białe kółko,
+      dotknij ekranu.
+      <br><br>
+      W tym miejscu zostanie ustawiony
+      początek całej wystawy.
     </p>
 
     <button id="start-button">
@@ -217,64 +211,34 @@
 </div>
 
 
-
-<!-- ======================================== -->
-<!-- DEBUG                                    -->
-<!-- ======================================== -->
-
-<div id="debug">
-
-  <strong>TRACKING DEBUG</strong>
-
-  <br>
-
-  X:
-  <span id="debug-x">0.000</span> m
-
-  <br>
-
-  Y:
-  <span id="debug-y">0.000</span> m
-
-  <br>
-
-  Z:
-  <span id="debug-z">0.000</span> m
-
-  <br><br>
-
-  PRZESUNIĘCIE:
-
-  <strong>
-    <span id="debug-distance">0.000</span> m
-  </strong>
-
-  <br>
-
-  FRAME:
-  <span id="debug-frame">0</span>
-
-</div>
-
-
-
-<!-- ======================================== -->
-<!-- INSTRUKCJA                               -->
-<!-- ======================================== -->
+<!-- ======================================= -->
+<!-- INFO                                    -->
+<!-- ======================================= -->
 
 <div id="instruction">
   Szukam podłogi...
 </div>
 
 
+<!-- ======================================= -->
+<!-- DEBUG                                   -->
+<!-- ======================================= -->
 
-<!-- ======================================== -->
-<!-- ERROR                                    -->
-<!-- ======================================== -->
+<div id="debug">
+
+  RUCH:
+  <span id="distance">0.00</span> m
+
+</div>
+
+
+<!-- ======================================= -->
+<!-- ERROR                                   -->
+<!-- ======================================= -->
 
 <div id="error">
 
-  <div id="error-inner">
+  <div>
 
     <h2>AR niedostępne</h2>
 
@@ -286,18 +250,18 @@
 
 
 
-<!-- ======================================== -->
-<!-- THREE.JS                                 -->
-<!-- ======================================== -->
+<!-- ======================================= -->
+<!-- THREE.JS                                -->
+<!-- ======================================= -->
 
 <script type="importmap">
 {
   "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
+    "three":
+      "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
   }
 }
 </script>
-
 
 
 <script type="module">
@@ -305,9 +269,9 @@
 import * as THREE from "three";
 
 
-/* ========================================== */
-/* HTML                                       */
-/* ========================================== */
+/* ========================================= */
+/* HTML                                      */
+/* ========================================= */
 
 const start =
   document.getElementById("start");
@@ -315,11 +279,14 @@ const start =
 const startButton =
   document.getElementById("start-button");
 
+const instruction =
+  document.getElementById("instruction");
+
 const debug =
   document.getElementById("debug");
 
-const instruction =
-  document.getElementById("instruction");
+const distanceText =
+  document.getElementById("distance");
 
 const errorScreen =
   document.getElementById("error");
@@ -328,26 +295,10 @@ const errorText =
   document.getElementById("error-text");
 
 
-const debugX =
-  document.getElementById("debug-x");
 
-const debugY =
-  document.getElementById("debug-y");
-
-const debugZ =
-  document.getElementById("debug-z");
-
-const debugDistance =
-  document.getElementById("debug-distance");
-
-const debugFrame =
-  document.getElementById("debug-frame");
-
-
-
-/* ========================================== */
-/* THREE                                     */
-/* ========================================== */
+/* ========================================= */
+/* SCENA                                     */
+/* ========================================= */
 
 const scene =
   new THREE.Scene();
@@ -358,9 +309,14 @@ const camera =
     70,
     window.innerWidth / window.innerHeight,
     0.01,
-    50
+    100
   );
 
+
+
+/* ========================================= */
+/* RENDERER                                  */
+/* ========================================= */
 
 const renderer =
   new THREE.WebGLRenderer({
@@ -390,17 +346,25 @@ renderer.outputColorSpace =
   THREE.SRGBColorSpace;
 
 
+renderer.toneMapping =
+  THREE.ACESFilmicToneMapping;
+
+
+renderer.toneMappingExposure =
+  1.2;
+
+
 document.body.appendChild(
   renderer.domElement
 );
 
 
 
-/* ========================================== */
+/* ========================================= */
 /* ŚWIATŁO                                   */
-/* ========================================== */
+/* ========================================= */
 
-const ambientLight =
+const hemisphere =
   new THREE.HemisphereLight(
     0xffffff,
     0x444444,
@@ -409,19 +373,19 @@ const ambientLight =
 
 
 scene.add(
-  ambientLight
+  hemisphere
 );
 
 
 
-const light =
+const sun =
   new THREE.DirectionalLight(
     0xffffff,
     3
   );
 
 
-light.position.set(
+sun.position.set(
   2,
   5,
   3
@@ -429,19 +393,14 @@ light.position.set(
 
 
 scene.add(
-  light
+  sun
 );
 
 
 
-/* ========================================== */
+/* ========================================= */
 /* RETICLE                                   */
-/* ========================================== */
-
-/*
-  Białe kółko pokazuje wykrytą
-  powierzchnię.
-*/
+/* ========================================= */
 
 const reticleGeometry =
   new THREE.RingGeometry(
@@ -480,92 +439,347 @@ scene.add(
 
 
 
-/* ========================================== */
-/* KOSTKA                                    */
-/* ========================================== */
+/* ========================================= */
+/* WYSTAWA                                   */
+/* ========================================= */
 
 /*
-  Kostka ma 30 × 30 × 30 cm.
+  To jest rodzic WSZYSTKICH obiektów.
+
+  Jego pozycja = punkt dotknięcia podłogi.
+
+  Wszystkie rzeźby mają pozycję
+  RELATYWNĄ względem niego.
 */
 
-const cubeGeometry =
-  new THREE.BoxGeometry(
-    0.3,
-    0.3,
-    0.3
-  );
+const exhibition =
+  new THREE.Group();
 
 
-const cubeMaterial =
-  new THREE.MeshStandardMaterial({
-
-    color: 0xff2222,
-
-    roughness: 0.45,
-
-    metalness: 0.05
-
-  });
-
-
-const cube =
-  new THREE.Mesh(
-    cubeGeometry,
-    cubeMaterial
-  );
-
-
-cube.visible = false;
+exhibition.visible = false;
 
 
 scene.add(
-  cube
+  exhibition
 );
 
 
 
-/* ========================================== */
-/* PODSTAWA POD KOSTKĄ                       */
-/* ========================================== */
+/* ========================================= */
+/* MATERIAŁY                                 */
+/* ========================================= */
 
-const baseGeometry =
+function material(color) {
+
+  return new THREE.MeshStandardMaterial({
+
+    color: color,
+
+    roughness: 0.45,
+
+    metalness: 0.08
+
+  });
+
+}
+
+
+
+/* ========================================= */
+/* RZEŹBA 1                                  */
+/* ========================================= */
+
+/*
+       █
+       █
+       █
+
+  80 cm przed punktem startowym.
+*/
+
+const sculpture1 =
+  new THREE.Mesh(
+
+    new THREE.BoxGeometry(
+      0.3,
+      0.8,
+      0.3
+    ),
+
+    material(
+      0xff3333
+    )
+
+  );
+
+
+sculpture1.position.set(
+
+  0,
+  0.4,
+  -0.8
+
+);
+
+
+exhibition.add(
+  sculpture1
+);
+
+
+
+/* ========================================= */
+/* RZEŹBA 2                                  */
+/* ========================================= */
+
+/*
+  Kula po lewej.
+*/
+
+const sculpture2 =
+  new THREE.Mesh(
+
+    new THREE.SphereGeometry(
+      0.25,
+      32,
+      32
+    ),
+
+    material(
+      0x3388ff
+    )
+
+  );
+
+
+sculpture2.position.set(
+
+  -0.7,
+  0.25,
+  -1.3
+
+);
+
+
+exhibition.add(
+  sculpture2
+);
+
+
+
+/* ========================================= */
+/* RZEŹBA 3                                  */
+/* ========================================= */
+
+/*
+  Wysoki słup po prawej.
+*/
+
+const sculpture3 =
+  new THREE.Mesh(
+
+    new THREE.CylinderGeometry(
+      0.18,
+      0.18,
+      1.2,
+      32
+    ),
+
+    material(
+      0x33dd77
+    )
+
+  );
+
+
+sculpture3.position.set(
+
+  0.8,
+  0.6,
+  -1.5
+
+);
+
+
+exhibition.add(
+  sculpture3
+);
+
+
+
+/* ========================================= */
+/* RZEŹBA 4                                  */
+/* ========================================= */
+
+/*
+  Torus trochę dalej.
+*/
+
+const sculpture4 =
+  new THREE.Mesh(
+
+    new THREE.TorusGeometry(
+      0.35,
+      0.1,
+      20,
+      50
+    ),
+
+    material(
+      0xffcc22
+    )
+
+  );
+
+
+sculpture4.position.set(
+
+  -0.5,
+  0.6,
+  -2.2
+
+);
+
+
+sculpture4.rotation.x =
+  Math.PI / 2;
+
+
+exhibition.add(
+  sculpture4
+);
+
+
+
+/* ========================================= */
+/* RZEŹBA 5                                  */
+/* ========================================= */
+
+/*
+  Stożek.
+*/
+
+const sculpture5 =
+  new THREE.Mesh(
+
+    new THREE.ConeGeometry(
+      0.35,
+      1,
+      32
+    ),
+
+    material(
+      0xcc44ff
+    )
+
+  );
+
+
+sculpture5.position.set(
+
+  0.7,
+  0.5,
+  -2.5
+
+);
+
+
+exhibition.add(
+  sculpture5
+);
+
+
+
+/* ========================================= */
+/* RZEŹBA 6                                  */
+/* ========================================= */
+
+/*
+  Duży box dalej.
+*/
+
+const sculpture6 =
+  new THREE.Mesh(
+
+    new THREE.BoxGeometry(
+      0.7,
+      0.7,
+      0.7
+    ),
+
+    material(
+      0x00dddd
+    )
+
+  );
+
+
+sculpture6.position.set(
+
+  0,
+  0.35,
+  -3.2
+
+);
+
+
+sculpture6.rotation.y =
+  Math.PI / 4;
+
+
+exhibition.add(
+  sculpture6
+);
+
+
+
+/* ========================================= */
+/* PUNKT ZERO                                */
+/* ========================================= */
+
+/*
+  Mały ring pokazujący punkt,
+  od którego liczona jest wystawa.
+*/
+
+const originGeometry =
   new THREE.RingGeometry(
-    0.22,
-    0.25,
+    0.15,
+    0.18,
     40
   );
 
 
-baseGeometry.rotateX(
+originGeometry.rotateX(
   -Math.PI / 2
 );
 
 
-const baseMaterial =
-  new THREE.MeshBasicMaterial({
-    color: 0xff2222
-  });
-
-
-const base =
+const origin =
   new THREE.Mesh(
-    baseGeometry,
-    baseMaterial
+
+    originGeometry,
+
+    new THREE.MeshBasicMaterial({
+      color: 0xffffff
+    })
+
   );
 
 
-base.visible = false;
+origin.position.y =
+  0.005;
 
 
-scene.add(
-  base
+exhibition.add(
+  origin
 );
 
 
 
-/* ========================================== */
+/* ========================================= */
 /* WEBXR                                     */
-/* ========================================== */
+/* ========================================= */
 
 let session = null;
 
@@ -575,20 +789,13 @@ let viewerSpace = null;
 
 let hitTestSource = null;
 
-let objectPlaced = false;
+let exhibitionPlaced = false;
 
 
 
-/* ========================================== */
-/* TRACKING                                  */
-/* ========================================== */
-
-/*
-  initialCameraPosition:
-
-  pozycja telefonu w momencie,
-  kiedy stawiamy kostkę.
-*/
+/* ========================================= */
+/* TRACKING DEBUG                            */
+/* ========================================= */
 
 const initialCameraPosition =
   new THREE.Vector3();
@@ -598,36 +805,31 @@ const currentCameraPosition =
   new THREE.Vector3();
 
 
-const relativePosition =
-  new THREE.Vector3();
-
-
 let initialPositionSaved =
   false;
 
 
-let frameCounter =
-  0;
 
-
-
-/* ========================================== */
-/* START AR                                  */
-/* ========================================== */
+/* ========================================= */
+/* START                                     */
+/* ========================================= */
 
 async function startAR() {
+
 
   if (!navigator.xr) {
 
     showError(
-      "Ta przeglądarka nie udostępnia WebXR."
+      "Ta przeglądarka nie obsługuje WebXR."
     );
 
     return;
+
   }
 
 
   try {
+
 
     const supported =
       await navigator.xr.isSessionSupported(
@@ -638,11 +840,13 @@ async function startAR() {
     if (!supported) {
 
       showError(
-        "To urządzenie / przeglądarka nie obsługuje immersive-ar."
+        "To urządzenie nie obsługuje immersive-ar."
       );
 
       return;
+
     }
+
 
 
     session =
@@ -670,11 +874,15 @@ async function startAR() {
       );
 
 
-    /*
-      WAŻNE:
 
-      Three.js ma używać LOCAL jako
-      przestrzeni odniesienia.
+    /* ===================================== */
+    /* WAŻNE                                */
+    /* ===================================== */
+
+    /*
+      Używamy dokładnie tego samego
+      reference space co w działającym
+      teście 6DoF.
     */
 
     renderer.xr.setReferenceSpaceType(
@@ -687,29 +895,15 @@ async function startAR() {
     );
 
 
-    /*
-      Pobieramy dokładnie tę przestrzeń
-      odniesienia, której będziemy używać
-      do hit-testu i odczytu pozycji.
-    */
-
     referenceSpace =
       renderer.xr.getReferenceSpace();
 
-
-    /*
-      Viewer space = przestrzeń kamery.
-    */
 
     viewerSpace =
       await session.requestReferenceSpace(
         "viewer"
       );
 
-
-    /*
-      Hit test.
-    */
 
     hitTestSource =
       await session.requestHitTestSource({
@@ -719,13 +913,10 @@ async function startAR() {
       });
 
 
-    /*
-      Tapnięcie ekranu.
-    */
 
     session.addEventListener(
       "select",
-      placeCube
+      placeExhibition
     );
 
 
@@ -735,15 +926,16 @@ async function startAR() {
     );
 
 
+
     start.style.display =
       "none";
 
 
-    debug.style.display =
+    instruction.style.display =
       "block";
 
 
-    instruction.style.display =
+    debug.style.display =
       "block";
 
 
@@ -751,17 +943,20 @@ async function startAR() {
       render
     );
 
+
   }
 
-  catch (err) {
+  catch(error) {
 
-    console.error(err);
+
+    console.error(error);
 
 
     showError(
+
       "Nie udało się uruchomić AR. " +
-      "Sprawdź HTTPS, uprawnienia kamery " +
-      "i obsługę ARCore/WebXR."
+      "Sprawdź HTTPS i uprawnienia."
+
     );
 
   }
@@ -770,24 +965,31 @@ async function startAR() {
 
 
 
-/* ========================================== */
-/* POSTAW KOSTKĘ                             */
-/* ========================================== */
+/* ========================================= */
+/* POSTAW WYSTAWĘ                            */
+/* ========================================= */
 
-function placeCube() {
+function placeExhibition() {
+
 
   if (!reticle.visible) {
+
     return;
+
   }
 
 
-  if (objectPlaced) {
+  if (exhibitionPlaced) {
+
     return;
+
   }
+
 
 
   /*
-    Pobieramy pozycję wykrytej podłogi.
+    Pobieramy pozycję reticle
+    bezpośrednio z hit-testu.
   */
 
   const hitPosition =
@@ -799,87 +1001,132 @@ function placeCube() {
   );
 
 
-  /*
-    Kostka ma 30 cm wysokości.
-
-    Jej środek musi być 15 cm
-    nad podłogą.
-  */
-
-  cube.position.set(
-
-    hitPosition.x,
-
-    hitPosition.y + 0.15,
-
-    hitPosition.z
-
-  );
-
 
   /*
-    Ring leży dokładnie na podłodze.
+    CAŁA WYSTAWA zostaje przyklejona
+    do tego miejsca w local reference space.
   */
 
-  base.position.copy(
+  exhibition.position.copy(
     hitPosition
   );
 
 
-  cube.visible = true;
 
-  base.visible = true;
-
-
-  objectPlaced = true;
-
-  reticle.visible = false;
-
+  /* ===================================== */
+  /* OBRÓT WYSTAWY                         */
+  /* ===================================== */
 
   /*
-    Zapisujemy pozycję telefonu
-    w momencie ustawienia kostki.
+    Sprawdzamy kierunek patrzenia
+    w momencie ustawiania wystawy.
+
+    Dzięki temu obiekty pojawią się
+    "przed użytkownikiem".
   */
 
   const xrCamera =
-    renderer.xr.getCamera(camera);
+    renderer.xr.getCamera(
+      camera
+    );
 
+
+  const direction =
+    new THREE.Vector3();
+
+
+  xrCamera.getWorldDirection(
+    direction
+  );
+
+
+  direction.y = 0;
+
+
+  if (
+    direction.lengthSq() > 0
+  ) {
+
+    direction.normalize();
+
+
+    const angle =
+      Math.atan2(
+        direction.x,
+        direction.z
+      );
+
+
+    exhibition.rotation.y =
+      angle + Math.PI;
+
+  }
+
+
+
+  /* ===================================== */
+  /* POKAŻ                                 */
+  /* ===================================== */
+
+  exhibition.visible =
+    true;
+
+
+  exhibitionPlaced =
+    true;
+
+
+  reticle.visible =
+    false;
+
+
+
+  /* ===================================== */
+  /* ZAPISZ POZYCJĘ TELEFONU              */
+  /* ===================================== */
 
   xrCamera.getWorldPosition(
     initialCameraPosition
   );
 
 
-  initialPositionSaved = true;
+  initialPositionSaved =
+    true;
+
 
 
   instruction.innerHTML =
-    "Kostka ustawiona.<br>" +
-    "Teraz przejdź 1 metr w bok albo do tyłu.";
+
+    "Wystawa ustawiona.<br>" +
+    "Możesz teraz fizycznie chodzić między obiektami.";
 
 }
 
 
 
-/* ========================================== */
+/* ========================================= */
 /* RENDER                                    */
-/* ========================================== */
+/* ========================================= */
 
-function render(timestamp, frame) {
+function render(
+  timestamp,
+  frame
+) {
 
-  frameCounter++;
 
-
-  /* ======================================== */
-  /* HIT TEST                                 */
-  /* ======================================== */
+  /* ===================================== */
+  /* HIT TEST                              */
+  /* ===================================== */
 
   if (
+
     frame &&
     hitTestSource &&
     referenceSpace &&
-    !objectPlaced
+    !exhibitionPlaced
+
   ) {
+
 
     const results =
       frame.getHitTestResults(
@@ -887,7 +1134,10 @@ function render(timestamp, frame) {
       );
 
 
-    if (results.length > 0) {
+    if (
+      results.length > 0
+    ) {
+
 
       const hit =
         results[0];
@@ -901,7 +1151,9 @@ function render(timestamp, frame) {
 
       if (pose) {
 
-        reticle.visible = true;
+
+        reticle.visible =
+          true;
 
 
         reticle.matrix.fromArray(
@@ -910,19 +1162,24 @@ function render(timestamp, frame) {
 
 
         instruction.innerHTML =
+
           "Podłoga wykryta.<br>" +
-          "Dotknij ekranu, żeby postawić kostkę.";
+          "Dotknij ekranu, aby ustawić wystawę.";
 
       }
 
     }
 
+
     else {
 
-      reticle.visible = false;
+
+      reticle.visible =
+        false;
 
 
       instruction.innerHTML =
+
         "Szukam podłogi...<br>" +
         "Poruszaj telefonem powoli.";
 
@@ -932,23 +1189,25 @@ function render(timestamp, frame) {
 
 
 
-  /* ======================================== */
-  /* POZYCJA KAMERY                          */
-  /* ======================================== */
+  /* ===================================== */
+  /* DEBUG RUCHU                           */
+  /* ===================================== */
 
   if (
+
     frame &&
-    referenceSpace
+    referenceSpace &&
+    initialPositionSaved
+
   ) {
 
+
     /*
-      Najważniejszy fragment tego testu.
+      Tak samo jak w naszym
+      działającym teście 6DoF.
 
-      Nie zgadujemy pozycji telefonu
-      na podstawie zwykłej kamery Three.js.
-
-      Bierzemy pose bezpośrednio
-      z klatki WebXR.
+      Pobieramy pose bezpośrednio
+      z WebXR.
     */
 
     const viewerPose =
@@ -957,103 +1216,34 @@ function render(timestamp, frame) {
       );
 
 
-    if (
-      viewerPose &&
-      viewerPose.views.length > 0
-    ) {
-
-      /*
-        W AR obydwa oczy / view mają
-        prawie tę samą pozycję.
-
-        Do debugowania wystarczy
-        pierwszy view.
-      */
-
-      const transform =
-        viewerPose.transform;
+    if (viewerPose) {
 
 
       currentCameraPosition.set(
 
-        transform.position.x,
-        transform.position.y,
-        transform.position.z
+        viewerPose.transform.position.x,
+
+        viewerPose.transform.position.y,
+
+        viewerPose.transform.position.z
 
       );
 
 
-      /*
-        Jeżeli kostka została już
-        ustawiona, pokazujemy ruch
-        względem miejsca startowego.
-      */
-
-      if (initialPositionSaved) {
-
-        relativePosition
-          .copy(currentCameraPosition)
-          .sub(initialCameraPosition);
+      const distance =
+        currentCameraPosition.distanceTo(
+          initialCameraPosition
+        );
 
 
-        const distance =
-          relativePosition.length();
-
-
-        debugX.textContent =
-          relativePosition.x.toFixed(3);
-
-
-        debugY.textContent =
-          relativePosition.y.toFixed(3);
-
-
-        debugZ.textContent =
-          relativePosition.z.toFixed(3);
-
-
-        debugDistance.textContent =
-          distance.toFixed(3);
-
-      }
-
-      /*
-        Przed ustawieniem kostki
-        pokazujemy pozycję absolutną
-        w local reference space.
-      */
-
-      else {
-
-        debugX.textContent =
-          currentCameraPosition.x.toFixed(3);
-
-
-        debugY.textContent =
-          currentCameraPosition.y.toFixed(3);
-
-
-        debugZ.textContent =
-          currentCameraPosition.z.toFixed(3);
-
-
-        debugDistance.textContent =
-          "0.000";
-
-      }
+      distanceText.textContent =
+        distance.toFixed(2);
 
     }
 
   }
 
 
-  debugFrame.textContent =
-    frameCounter;
-
-
-  /* ======================================== */
-  /* RENDER                                   */
-  /* ======================================== */
 
   renderer.render(
     scene,
@@ -1064,52 +1254,47 @@ function render(timestamp, frame) {
 
 
 
-/* ========================================== */
-/* KONIEC                                    */
-/* ========================================== */
+/* ========================================= */
+/* END                                       */
+/* ========================================= */
 
 function endSession() {
 
-  session = null;
 
-  referenceSpace = null;
-
-  viewerSpace = null;
-
-  hitTestSource = null;
+  session =
+    null;
 
 
-  objectPlaced = false;
-
-  initialPositionSaved = false;
-
-
-  cube.visible = false;
-
-  base.visible = false;
-
-  reticle.visible = false;
+  referenceSpace =
+    null;
 
 
-  initialCameraPosition.set(
-    0,
-    0,
-    0
-  );
+  viewerSpace =
+    null;
 
 
-  currentCameraPosition.set(
-    0,
-    0,
-    0
-  );
+  hitTestSource =
+    null;
 
 
-  relativePosition.set(
-    0,
-    0,
-    0
-  );
+  exhibitionPlaced =
+    false;
+
+
+  initialPositionSaved =
+    false;
+
+
+  exhibition.visible =
+    false;
+
+
+  reticle.visible =
+    false;
+
+
+  distanceText.textContent =
+    "0.00";
 
 
   renderer.setAnimationLoop(
@@ -1117,11 +1302,11 @@ function endSession() {
   );
 
 
-  debug.style.display =
+  instruction.style.display =
     "none";
 
 
-  instruction.style.display =
+  debug.style.display =
     "none";
 
 
@@ -1132,11 +1317,12 @@ function endSession() {
 
 
 
-/* ========================================== */
+/* ========================================= */
 /* ERROR                                     */
-/* ========================================== */
+/* ========================================= */
 
 function showError(message) {
+
 
   start.style.display =
     "none";
@@ -1153,13 +1339,16 @@ function showError(message) {
 
 
 
-/* ========================================== */
+/* ========================================= */
 /* RESIZE                                    */
-/* ========================================== */
+/* ========================================= */
 
 window.addEventListener(
+
   "resize",
+
   () => {
+
 
     camera.aspect =
       window.innerWidth /
@@ -1175,13 +1364,14 @@ window.addEventListener(
     );
 
   }
+
 );
 
 
 
-/* ========================================== */
+/* ========================================= */
 /* BUTTON                                    */
-/* ========================================== */
+/* ========================================= */
 
 startButton.addEventListener(
   "click",
@@ -1193,3 +1383,4 @@ startButton.addEventListener(
 </body>
 </html>
 ```
+
