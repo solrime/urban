@@ -1,0 +1,1220 @@
+```html
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0,
+             maximum-scale=1.0, user-scalable=no"
+  >
+
+  <title>Wystawa AR</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+      background: #000;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    /* ----------------------------- */
+    /* EKRAN STARTOWY                */
+    /* ----------------------------- */
+
+    #start-screen {
+      position: fixed;
+      inset: 0;
+
+      z-index: 100;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 30px;
+
+      background:
+        linear-gradient(
+          180deg,
+          #111 0%,
+          #000 100%
+        );
+
+      color: white;
+      text-align: center;
+    }
+
+    .start-box {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .start-box h1 {
+      margin: 0 0 16px;
+
+      font-size: 34px;
+      font-weight: 700;
+    }
+
+    .start-box p {
+      margin: 0 0 30px;
+
+      opacity: 0.75;
+
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    #start-ar {
+      width: 100%;
+
+      padding: 18px 24px;
+
+      border: 0;
+      border-radius: 14px;
+
+      background: white;
+      color: black;
+
+      font-size: 17px;
+      font-weight: 700;
+
+      cursor: pointer;
+    }
+
+    /* ----------------------------- */
+    /* UI W AR                       */
+    /* ----------------------------- */
+
+    #ar-ui {
+      position: fixed;
+      inset: 0;
+
+      z-index: 20;
+
+      pointer-events: none;
+
+      display: none;
+    }
+
+    #instruction {
+      position: absolute;
+
+      top: 24px;
+      left: 50%;
+
+      transform: translateX(-50%);
+
+      width: calc(100% - 40px);
+      max-width: 430px;
+
+      padding: 14px 18px;
+
+      border-radius: 16px;
+
+      background: rgba(0, 0, 0, 0.68);
+
+      backdrop-filter: blur(8px);
+
+      color: white;
+
+      text-align: center;
+
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    #status {
+      position: absolute;
+
+      bottom: 30px;
+      left: 50%;
+
+      transform: translateX(-50%);
+
+      padding: 10px 16px;
+
+      border-radius: 999px;
+
+      background: rgba(0, 0, 0, 0.65);
+
+      color: white;
+
+      font-size: 13px;
+    }
+
+    #error {
+      display: none;
+
+      position: fixed;
+      inset: 0;
+
+      z-index: 200;
+
+      padding: 40px;
+
+      align-items: center;
+      justify-content: center;
+
+      background: #111;
+      color: white;
+
+      text-align: center;
+    }
+
+    #error div {
+      max-width: 500px;
+    }
+
+    #error h2 {
+      margin-top: 0;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<!-- ================================================= -->
+<!-- EKRAN STARTOWY                                    -->
+<!-- ================================================= -->
+
+<div id="start-screen">
+
+  <div class="start-box">
+
+    <h1>Wystawa AR</h1>
+
+    <p>
+      Uruchom kamerę, skieruj telefon na podłogę
+      i poruszaj nim powoli. Gdy pojawi się białe
+      kółko, dotknij ekranu, aby ustawić wystawę.
+    </p>
+
+    <button id="start-ar">
+      URUCHOM AR
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- INTERFEJS AR                                      -->
+<!-- ================================================= -->
+
+<div id="ar-ui">
+
+  <div id="instruction">
+    Poruszaj telefonem i skieruj kamerę na podłogę.
+  </div>
+
+  <div id="status">
+    Szukanie powierzchni...
+  </div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- BŁĄD                                              -->
+<!-- ================================================= -->
+
+<div id="error">
+
+  <div>
+
+    <h2>AR niedostępne</h2>
+
+    <p id="error-text">
+      Twoje urządzenie lub przeglądarka
+      nie obsługuje WebXR AR.
+    </p>
+
+  </div>
+
+</div>
+
+
+
+<!-- ================================================= -->
+<!-- THREE.JS IMPORT MAP                               -->
+<!-- ================================================= -->
+
+<script type="importmap">
+{
+  "imports": {
+    "three":
+      "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+
+    "three/addons/":
+      "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+  }
+}
+</script>
+
+
+
+<script type="module">
+
+/* ================================================= */
+/* IMPORTY                                           */
+/* ================================================= */
+
+import * as THREE from "three";
+
+import {
+  GLTFLoader
+} from "three/addons/loaders/GLTFLoader.js";
+
+
+/* ================================================= */
+/* ELEMENTY HTML                                     */
+/* ================================================= */
+
+const startScreen =
+  document.getElementById("start-screen");
+
+const startButton =
+  document.getElementById("start-ar");
+
+const arUI =
+  document.getElementById("ar-ui");
+
+const instruction =
+  document.getElementById("instruction");
+
+const status =
+  document.getElementById("status");
+
+const errorScreen =
+  document.getElementById("error");
+
+const errorText =
+  document.getElementById("error-text");
+
+
+/* ================================================= */
+/* THREE.JS                                          */
+/* ================================================= */
+
+const scene =
+  new THREE.Scene();
+
+
+const camera =
+  new THREE.PerspectiveCamera(
+    70,
+    window.innerWidth / window.innerHeight,
+    0.01,
+    100
+  );
+
+
+const renderer =
+  new THREE.WebGLRenderer({
+    antialias: true,
+    alpha: true
+  });
+
+
+renderer.setPixelRatio(
+  Math.min(
+    window.devicePixelRatio,
+    2
+  )
+);
+
+
+renderer.setSize(
+  window.innerWidth,
+  window.innerHeight
+);
+
+
+renderer.xr.enabled = true;
+
+
+renderer.outputColorSpace =
+  THREE.SRGBColorSpace;
+
+
+renderer.toneMapping =
+  THREE.ACESFilmicToneMapping;
+
+
+renderer.toneMappingExposure =
+  1.1;
+
+
+document.body.appendChild(
+  renderer.domElement
+);
+
+
+
+/* ================================================= */
+/* ŚWIATŁO                                           */
+/* ================================================= */
+
+const hemisphereLight =
+  new THREE.HemisphereLight(
+    0xffffff,
+    0x444444,
+    2.5
+  );
+
+scene.add(
+  hemisphereLight
+);
+
+
+const directionalLight =
+  new THREE.DirectionalLight(
+    0xffffff,
+    2
+  );
+
+directionalLight.position.set(
+  2,
+  4,
+  2
+);
+
+scene.add(
+  directionalLight
+);
+
+
+
+/* ================================================= */
+/* RETICLE                                           */
+/* ================================================= */
+
+/*
+  Białe kółko pokazuje miejsce,
+  w którym możemy ustawić wystawę.
+*/
+
+const reticleGeometry =
+  new THREE.RingGeometry(
+    0.08,
+    0.11,
+    40
+  );
+
+
+reticleGeometry.rotateX(
+  -Math.PI / 2
+);
+
+
+const reticleMaterial =
+  new THREE.MeshBasicMaterial({
+    color: 0xffffff
+  });
+
+
+const reticle =
+  new THREE.Mesh(
+    reticleGeometry,
+    reticleMaterial
+  );
+
+
+reticle.matrixAutoUpdate = false;
+
+reticle.visible = false;
+
+scene.add(reticle);
+
+
+
+/* ================================================= */
+/* ROOT WYSTAWY                                      */
+/* ================================================= */
+
+/*
+  Wszystkie modele dodajemy do tego obiektu.
+
+  Dzięki temu użytkownik wybiera tylko jeden
+  punkt startowy.
+
+  Cała wystawa zostaje ustawiona względem niego.
+*/
+
+const exhibition =
+  new THREE.Group();
+
+
+exhibition.visible = false;
+
+
+scene.add(
+  exhibition
+);
+
+
+
+/* ================================================= */
+/* MODELE                                            */
+/* ================================================= */
+
+const loader =
+  new GLTFLoader();
+
+
+
+/*
+  -------------------------------------------------
+  KONFIGURACJA WYSTAWY
+  -------------------------------------------------
+
+  position:
+
+  x = lewo / prawo
+  y = góra / dół
+  z = przód / tył
+
+  Jednostka = metr.
+
+  Czyli:
+
+  [0, 0, -2]
+
+  oznacza:
+
+  2 metry przed punktem startowym.
+*/
+
+
+const MODELS = [
+
+  {
+
+    file:
+      "./models/model1.glb",
+
+    position:
+      [0, 0, -2],
+
+    rotation:
+      [0, 0, 0],
+
+    scale:
+      1
+
+  },
+
+
+  {
+
+    file:
+      "./models/model2.glb",
+
+    position:
+      [2, 0, -3],
+
+    rotation:
+      [0, Math.PI / 2, 0],
+
+    scale:
+      1
+
+  },
+
+
+  {
+
+    file:
+      "./models/model3.glb",
+
+    position:
+      [-2, 0, -4],
+
+    rotation:
+      [0, -Math.PI / 4, 0],
+
+    scale:
+      1
+
+  },
+
+
+  {
+
+    file:
+      "./models/model4.glb",
+
+    position:
+      [1, 0, -6],
+
+    rotation:
+      [0, Math.PI, 0],
+
+    scale:
+      1
+
+  },
+
+
+  {
+
+    file:
+      "./models/model5.glb",
+
+    position:
+      [-1.5, 0, -7],
+
+    rotation:
+      [0, 0, 0],
+
+    scale:
+      1
+
+  }
+
+];
+
+
+
+/* ================================================= */
+/* ŁADOWANIE MODELI                                  */
+/* ================================================= */
+
+let loadedModels = 0;
+
+
+MODELS.forEach(
+  function(config) {
+
+    loader.load(
+
+      config.file,
+
+
+      function(gltf) {
+
+        const model =
+          gltf.scene;
+
+
+        /* POZYCJA */
+
+        model.position.set(
+          config.position[0],
+          config.position[1],
+          config.position[2]
+        );
+
+
+        /* ROTACJA */
+
+        model.rotation.set(
+          config.rotation[0],
+          config.rotation[1],
+          config.rotation[2]
+        );
+
+
+        /* SKALA */
+
+        model.scale.setScalar(
+          config.scale
+        );
+
+
+        /*
+          Włączamy poprawne renderowanie
+          tekstur / cieni dla wszystkich
+          elementów modelu.
+        */
+
+        model.traverse(
+
+          function(child) {
+
+            if (child.isMesh) {
+
+              child.frustumCulled = true;
+
+            }
+
+          }
+
+        );
+
+
+        exhibition.add(
+          model
+        );
+
+
+        loadedModels++;
+
+
+        console.log(
+          "Załadowano:",
+          config.file
+        );
+
+
+        console.log(
+          loadedModels +
+          "/" +
+          MODELS.length
+        );
+
+      },
+
+
+      function(progress) {
+
+        if (
+          progress.total > 0
+        ) {
+
+          const percent =
+            Math.round(
+              progress.loaded /
+              progress.total *
+              100
+            );
+
+
+          console.log(
+            config.file,
+            percent + "%"
+          );
+
+        }
+
+      },
+
+
+      function(error) {
+
+        console.error(
+          "Błąd modelu:",
+          config.file,
+          error
+        );
+
+      }
+
+    );
+
+  }
+);
+
+
+
+/* ================================================= */
+/* WEBXR                                             */
+/* ================================================= */
+
+let session = null;
+
+let hitTestSource = null;
+
+let referenceSpace = null;
+
+let viewerSpace = null;
+
+let exhibitionPlaced = false;
+
+
+
+/* ================================================= */
+/* SPRAWDZENIE WEBXR                                 */
+/* ================================================= */
+
+async function checkXR() {
+
+  if (!navigator.xr) {
+
+    showError(
+      "Ta przeglądarka nie obsługuje WebXR. " +
+      "Spróbuj Chrome na kompatybilnym urządzeniu Android."
+    );
+
+    return false;
+
+  }
+
+
+  const supported =
+    await navigator.xr.isSessionSupported(
+      "immersive-ar"
+    );
+
+
+  if (!supported) {
+
+    showError(
+      "To urządzenie nie obsługuje sesji immersive-ar."
+    );
+
+    return false;
+
+  }
+
+
+  return true;
+
+}
+
+
+
+/* ================================================= */
+/* START AR                                          */
+/* ================================================= */
+
+async function startAR() {
+
+  try {
+
+    const supported =
+      await checkXR();
+
+
+    if (!supported) {
+      return;
+    }
+
+
+    session =
+      await navigator.xr.requestSession(
+
+        "immersive-ar",
+
+        {
+
+          requiredFeatures: [
+            "hit-test"
+          ],
+
+          optionalFeatures: [
+            "dom-overlay",
+            "anchors",
+            "local-floor"
+          ],
+
+          domOverlay: {
+            root: document.body
+          }
+
+        }
+
+      );
+
+
+    renderer.xr.setReferenceSpaceType(
+      "local"
+    );
+
+
+    await renderer.xr.setSession(
+      session
+    );
+
+
+    startScreen.style.display =
+      "none";
+
+
+    arUI.style.display =
+      "block";
+
+
+    /* ----------------------------------------- */
+    /* REFERENCE SPACE                           */
+    /* ----------------------------------------- */
+
+    referenceSpace =
+      await session.requestReferenceSpace(
+        "local"
+      );
+
+
+    viewerSpace =
+      await session.requestReferenceSpace(
+        "viewer"
+      );
+
+
+    /* ----------------------------------------- */
+    /* HIT TEST                                  */
+    /* ----------------------------------------- */
+
+    hitTestSource =
+      await session.requestHitTestSource({
+
+        space: viewerSpace
+
+      });
+
+
+    /* ----------------------------------------- */
+    /* SELECT                                    */
+    /* ----------------------------------------- */
+
+    session.addEventListener(
+      "select",
+      placeExhibition
+    );
+
+
+    /* ----------------------------------------- */
+    /* KONIEC SESJI                              */
+    /* ----------------------------------------- */
+
+    session.addEventListener(
+      "end",
+      onSessionEnd
+    );
+
+
+    renderer.setAnimationLoop(
+      render
+    );
+
+
+  }
+
+  catch(error) {
+
+    console.error(error);
+
+
+    showError(
+      "Nie udało się uruchomić AR. " +
+      "Sprawdź uprawnienia kamery oraz HTTPS."
+    );
+
+  }
+
+}
+
+
+
+/* ================================================= */
+/* USTAWIENIE WYSTAWY                               */
+/* ================================================= */
+
+function placeExhibition() {
+
+  if (!reticle.visible) {
+    return;
+  }
+
+
+  if (exhibitionPlaced) {
+    return;
+  }
+
+
+  /*
+    Pobieramy pozycję z macierzy reticle.
+  */
+
+  const position =
+    new THREE.Vector3();
+
+
+  position.setFromMatrixPosition(
+    reticle.matrix
+  );
+
+
+  exhibition.position.copy(
+    position
+  );
+
+
+
+  /*
+    Pobieramy kierunek telefonu.
+
+    Chcemy, żeby "przód wystawy"
+    był ustawiony względem użytkownika.
+  */
+
+  const xrCamera =
+    renderer.xr.getCamera(
+      camera
+    );
+
+
+  const cameraDirection =
+    new THREE.Vector3();
+
+
+  xrCamera.getWorldDirection(
+    cameraDirection
+  );
+
+
+  /*
+    Interesuje nas tylko obrót
+    wokół osi Y.
+  */
+
+  cameraDirection.y = 0;
+
+  cameraDirection.normalize();
+
+
+  const angle =
+    Math.atan2(
+      cameraDirection.x,
+      cameraDirection.z
+    );
+
+
+  exhibition.rotation.set(
+    0,
+    angle + Math.PI,
+    0
+  );
+
+
+  exhibition.visible =
+    true;
+
+
+  exhibitionPlaced =
+    true;
+
+
+  reticle.visible =
+    false;
+
+
+  instruction.innerHTML =
+    "Wystawa ustawiona.<br>" +
+    "Możesz teraz chodzić pomiędzy modelami.";
+
+
+  status.innerHTML =
+    "AR aktywne";
+
+}
+
+
+
+/* ================================================= */
+/* RENDER                                            */
+/* ================================================= */
+
+function render(
+  timestamp,
+  frame
+) {
+
+  if (
+
+    frame &&
+    hitTestSource &&
+    referenceSpace &&
+    !exhibitionPlaced
+
+  ) {
+
+    const hitTestResults =
+      frame.getHitTestResults(
+        hitTestSource
+      );
+
+
+    if (
+      hitTestResults.length > 0
+    ) {
+
+      const hit =
+        hitTestResults[0];
+
+
+      const pose =
+        hit.getPose(
+          referenceSpace
+        );
+
+
+      if (pose) {
+
+        reticle.visible =
+          true;
+
+
+        reticle.matrix.fromArray(
+          pose.transform.matrix
+        );
+
+
+        status.innerHTML =
+          "Powierzchnia wykryta";
+
+
+        instruction.innerHTML =
+          "Dotknij ekranu, aby ustawić wystawę.";
+
+      }
+
+    }
+
+    else {
+
+      reticle.visible =
+        false;
+
+
+      status.innerHTML =
+        "Szukanie powierzchni...";
+
+
+      instruction.innerHTML =
+        "Skieruj telefon na podłogę " +
+        "i poruszaj nim powoli.";
+
+    }
+
+  }
+
+
+  renderer.render(
+    scene,
+    camera
+  );
+
+}
+
+
+
+/* ================================================= */
+/* KONIEC SESJI                                      */
+/* ================================================= */
+
+function onSessionEnd() {
+
+  session = null;
+
+  hitTestSource = null;
+
+  referenceSpace = null;
+
+  viewerSpace = null;
+
+  exhibitionPlaced = false;
+
+
+  exhibition.visible =
+    false;
+
+
+  reticle.visible =
+    false;
+
+
+  renderer.setAnimationLoop(
+    null
+  );
+
+
+  arUI.style.display =
+    "none";
+
+
+  startScreen.style.display =
+    "flex";
+
+}
+
+
+
+/* ================================================= */
+/* BŁĄD                                              */
+/* ================================================= */
+
+function showError(message) {
+
+  startScreen.style.display =
+    "none";
+
+
+  errorScreen.style.display =
+    "flex";
+
+
+  errorText.innerHTML =
+    message;
+
+}
+
+
+
+/* ================================================= */
+/* RESIZE                                            */
+/* ================================================= */
+
+window.addEventListener(
+
+  "resize",
+
+  function() {
+
+    camera.aspect =
+      window.innerWidth /
+      window.innerHeight;
+
+
+    camera.updateProjectionMatrix();
+
+
+    renderer.setSize(
+      window.innerWidth,
+      window.innerHeight
+    );
+
+  }
+
+);
+
+
+
+/* ================================================= */
+/* BUTTON                                            */
+/* ================================================= */
+
+startButton.addEventListener(
+  "click",
+  startAR
+);
+
+</script>
+
+</body>
+</html>
+```
