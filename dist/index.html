@@ -1,0 +1,269 @@
+```html
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0,
+             maximum-scale=1.0, user-scalable=no"
+  >
+
+  <title>Wystawa AR</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+      background: #000;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    /* ----------------------------- */
+    /* EKRAN STARTOWY                */
+    /* ----------------------------- */
+
+    #start-screen {
+      position: fixed;
+      inset: 0;
+
+      z-index: 100;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 30px;
+
+      background:
+        linear-gradient(
+          180deg,
+          #111 0%,
+          #000 100%
+        );
+
+      color: white;
+      text-align: center;
+    }
+
+    .start-box {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .start-box h1 {
+      margin: 0 0 16px;
+
+      font-size: 34px;
+      font-weight: 700;
+    }
+
+    .start-box p {
+      margin: 0 0 30px;
+
+      opacity: 0.75;
+
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    #start-ar {
+      width: 100%;
+
+      padding: 18px 24px;
+
+      border: 0;
+      border-radius: 14px;
+
+      background: white;
+      color: black;
+
+      font-size: 17px;
+      font-weight: 700;
+
+      cursor: pointer;
+    }
+
+    /* ----------------------------- */
+    /* UI W AR                       */
+    /* ----------------------------- */
+
+    #ar-ui {
+      position: fixed;
+      inset: 0;
+
+      z-index: 20;
+
+      pointer-events: none;
+
+      display: none;
+    }
+
+    #instruction {
+      position: absolute;
+
+      top: 24px;
+      left: 50%;
+
+      transform: translateX(-50%);
+
+      width: calc(100% - 40px);
+      max-width: 430px;
+
+      padding: 14px 18px;
+
+      border-radius: 16px;
+
+      background: rgba(0, 0, 0, 0.68);
+
+      backdrop-filter: blur(8px);
+
+      color: white;
+
+      text-align: center;
+
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    #status {
+      position: absolute;
+
+      bottom: 30px;
+      left: 50%;
+
+      transform: translateX(-50%);
+
+      padding: 10px 16px;
+
+      border-radius: 999px;
+
+      background: rgba(0, 0, 0, 0.65);
+
+      color: white;
+
+      font-size: 13px;
+    }
+
+    #error {
+      display: none;
+
+      position: fixed;
+      inset: 0;
+
+      z-index: 200;
+
+      padding: 40px;
+
+      align-items: center;
+      justify-content: center;
+
+      background: #111;
+      color: white;
+
+      text-align: center;
+    }
+
+    #error div {
+      max-width: 500px;
+    }
+
+    #error h2 {
+      margin-top: 0;
+    }
+
+  </style>
+  <script type="module" crossorigin src="/assets/index-CbkN_DPb.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/three-CGMYYGyN.js">
+</head>
+
+<body>
+
+<!-- ================================================= -->
+<!-- EKRAN STARTOWY                                    -->
+<!-- ================================================= -->
+
+<div id="start-screen">
+
+  <div class="start-box">
+
+    <h1>Wystawa AR</h1>
+
+    <p>
+      Uruchom kamerę, skieruj telefon na podłogę
+      i poruszaj nim powoli. Gdy pojawi się białe
+      kółko, dotknij ekranu, aby ustawić wystawę.
+    </p>
+
+    <button id="start-ar">
+      URUCHOM AR
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- INTERFEJS AR                                      -->
+<!-- ================================================= -->
+
+<div id="ar-ui">
+
+  <div id="instruction">
+    Poruszaj telefonem i skieruj kamerę na podłogę.
+  </div>
+
+  <div id="status">
+    Szukanie powierzchni...
+  </div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- BŁĄD                                              -->
+<!-- ================================================= -->
+
+<div id="error">
+
+  <div>
+
+    <h2>AR niedostępne</h2>
+
+    <p id="error-text">
+      Twoje urządzenie lub przeglądarka
+      nie obsługuje WebXR AR.
+    </p>
+
+  </div>
+
+</div>
+
+
+
+
+
+
+</body>
+</html>
+```
