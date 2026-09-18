@@ -6,11 +6,10 @@
 
   <meta
     name="viewport"
-    content="width=device-width, initial-scale=1.0,
-             maximum-scale=1.0, user-scalable=no"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
   >
 
-  <title>Wystawa AR</title>
+  <title>WebAR - test boxów</title>
 
   <style>
     * {
@@ -23,29 +22,21 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-
-      font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Arial,
-        sans-serif;
-
       background: #000;
+      font-family: Arial, sans-serif;
     }
 
     canvas {
       display: block;
     }
 
-    /* ----------------------------- */
+    /* ============================== */
     /* EKRAN STARTOWY                */
-    /* ----------------------------- */
+    /* ============================== */
 
     #start-screen {
       position: fixed;
       inset: 0;
-
       z-index: 100;
 
       display: flex;
@@ -54,13 +45,7 @@
 
       padding: 30px;
 
-      background:
-        linear-gradient(
-          180deg,
-          #111 0%,
-          #000 100%
-        );
-
+      background: #111;
       color: white;
       text-align: center;
     }
@@ -71,14 +56,12 @@
     }
 
     .start-box h1 {
-      margin: 0 0 16px;
-
-      font-size: 34px;
-      font-weight: 700;
+      margin: 0 0 15px;
+      font-size: 32px;
     }
 
     .start-box p {
-      margin: 0 0 30px;
+      margin: 0 0 25px;
 
       opacity: 0.75;
 
@@ -91,21 +74,21 @@
 
       padding: 18px 24px;
 
-      border: 0;
+      border: none;
       border-radius: 14px;
 
       background: white;
       color: black;
 
       font-size: 17px;
-      font-weight: 700;
+      font-weight: bold;
 
       cursor: pointer;
     }
 
-    /* ----------------------------- */
+    /* ============================== */
     /* UI W AR                       */
-    /* ----------------------------- */
+    /* ============================== */
 
     #ar-ui {
       position: fixed;
@@ -113,15 +96,15 @@
 
       z-index: 20;
 
-      pointer-events: none;
-
       display: none;
+
+      pointer-events: none;
     }
 
     #instruction {
       position: absolute;
 
-      top: 24px;
+      top: 20px;
       left: 50%;
 
       transform: translateX(-50%);
@@ -131,11 +114,9 @@
 
       padding: 14px 18px;
 
-      border-radius: 16px;
+      border-radius: 15px;
 
-      background: rgba(0, 0, 0, 0.68);
-
-      backdrop-filter: blur(8px);
+      background: rgba(0, 0, 0, 0.65);
 
       color: white;
 
@@ -155,7 +136,7 @@
 
       padding: 10px 16px;
 
-      border-radius: 999px;
+      border-radius: 100px;
 
       background: rgba(0, 0, 0, 0.65);
 
@@ -164,18 +145,21 @@
       font-size: 13px;
     }
 
-    #error {
-      display: none;
+    /* ============================== */
+    /* ERROR                         */
+    /* ============================== */
 
+    #error {
       position: fixed;
       inset: 0;
 
       z-index: 200;
 
-      padding: 40px;
-
+      display: none;
       align-items: center;
       justify-content: center;
+
+      padding: 30px;
 
       background: #111;
       color: white;
@@ -184,32 +168,31 @@
     }
 
     #error div {
-      max-width: 500px;
+      max-width: 450px;
     }
-
-    #error h2 {
-      margin-top: 0;
-    }
-
   </style>
 </head>
 
+
 <body>
 
-<!-- ================================================= -->
-<!-- EKRAN STARTOWY                                    -->
-<!-- ================================================= -->
+
+<!-- ================================================== -->
+<!-- START                                              -->
+<!-- ================================================== -->
 
 <div id="start-screen">
 
   <div class="start-box">
 
-    <h1>Wystawa AR</h1>
+    <h1>Test WebAR</h1>
 
     <p>
-      Uruchom kamerę, skieruj telefon na podłogę
-      i poruszaj nim powoli. Gdy pojawi się białe
-      kółko, dotknij ekranu, aby ustawić wystawę.
+      Uruchom AR, skieruj telefon na podłogę
+      i poruszaj nim powoli.
+      <br><br>
+      Kiedy pojawi się białe kółko,
+      dotknij ekranu.
     </p>
 
     <button id="start-ar">
@@ -221,14 +204,15 @@
 </div>
 
 
-<!-- ================================================= -->
-<!-- INTERFEJS AR                                      -->
-<!-- ================================================= -->
+
+<!-- ================================================== -->
+<!-- UI PODCZAS AR                                      -->
+<!-- ================================================== -->
 
 <div id="ar-ui">
 
   <div id="instruction">
-    Poruszaj telefonem i skieruj kamerę na podłogę.
+    Skieruj telefon na podłogę.
   </div>
 
   <div id="status">
@@ -238,9 +222,10 @@
 </div>
 
 
-<!-- ================================================= -->
-<!-- BŁĄD                                              -->
-<!-- ================================================= -->
+
+<!-- ================================================== -->
+<!-- ERROR                                              -->
+<!-- ================================================== -->
 
 <div id="error">
 
@@ -249,8 +234,7 @@
     <h2>AR niedostępne</h2>
 
     <p id="error-text">
-      Twoje urządzenie lub przeglądarka
-      nie obsługuje WebXR AR.
+      Twoje urządzenie nie obsługuje WebXR AR.
     </p>
 
   </div>
@@ -259,24 +243,32 @@
 
 
 
+<!-- ================================================== -->
+<!-- THREE.JS                                           -->
+<!-- ================================================== -->
+
+<script type="importmap">
+{
+  "imports": {
+
+    "three":
+      "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
+
+  }
+}
+</script>
+
 
 
 <script type="module">
 
-/* ================================================= */
-/* IMPORTY                                           */
-/* ================================================= */
-
 import * as THREE from "three";
 
-import {
-  GLTFLoader
-} from "three/addons/loaders/GLTFLoader.js";
 
 
-/* ================================================= */
-/* ELEMENTY HTML                                     */
-/* ================================================= */
+/* ================================================== */
+/* HTML                                               */
+/* ================================================== */
 
 const startScreen =
   document.getElementById("start-screen");
@@ -300,13 +292,19 @@ const errorText =
   document.getElementById("error-text");
 
 
-/* ================================================= */
-/* THREE.JS                                          */
-/* ================================================= */
+
+/* ================================================== */
+/* SCENA                                              */
+/* ================================================== */
 
 const scene =
   new THREE.Scene();
 
+
+
+/* ================================================== */
+/* KAMERA                                             */
+/* ================================================== */
 
 const camera =
   new THREE.PerspectiveCamera(
@@ -317,24 +315,35 @@ const camera =
   );
 
 
+
+/* ================================================== */
+/* RENDERER                                           */
+/* ================================================== */
+
 const renderer =
   new THREE.WebGLRenderer({
+
     antialias: true,
     alpha: true
+
   });
 
 
 renderer.setPixelRatio(
+
   Math.min(
     window.devicePixelRatio,
     2
   )
+
 );
 
 
 renderer.setSize(
+
   window.innerWidth,
   window.innerHeight
+
 );
 
 
@@ -350,42 +359,54 @@ renderer.toneMapping =
 
 
 renderer.toneMappingExposure =
-  1.1;
+  1.2;
 
 
 document.body.appendChild(
+
   renderer.domElement
+
 );
 
 
 
-/* ================================================= */
-/* ŚWIATŁO                                           */
-/* ================================================= */
+/* ================================================== */
+/* ŚWIATŁO                                            */
+/* ================================================== */
 
 const hemisphereLight =
   new THREE.HemisphereLight(
+
     0xffffff,
     0x444444,
     2.5
+
   );
+
 
 scene.add(
   hemisphereLight
 );
 
 
+
 const directionalLight =
   new THREE.DirectionalLight(
+
     0xffffff,
-    2
+    3
+
   );
 
+
 directionalLight.position.set(
+
   2,
-  4,
+  5,
   2
+
 );
+
 
 scene.add(
   directionalLight
@@ -393,38 +414,46 @@ scene.add(
 
 
 
-/* ================================================= */
-/* RETICLE                                           */
-/* ================================================= */
+/* ================================================== */
+/* RETICLE                                            */
+/* ================================================== */
 
 /*
-  Białe kółko pokazuje miejsce,
-  w którym możemy ustawić wystawę.
+  To jest białe kółko pokazujące
+  wykrytą podłogę.
 */
 
 const reticleGeometry =
   new THREE.RingGeometry(
+
     0.08,
     0.11,
     40
+
   );
 
 
 reticleGeometry.rotateX(
+
   -Math.PI / 2
+
 );
 
 
 const reticleMaterial =
   new THREE.MeshBasicMaterial({
+
     color: 0xffffff
+
   });
 
 
 const reticle =
   new THREE.Mesh(
+
     reticleGeometry,
     reticleMaterial
+
   );
 
 
@@ -432,21 +461,24 @@ reticle.matrixAutoUpdate = false;
 
 reticle.visible = false;
 
-scene.add(reticle);
+
+scene.add(
+  reticle
+);
 
 
 
-/* ================================================= */
-/* ROOT WYSTAWY                                      */
-/* ================================================= */
+/* ================================================== */
+/* ROOT CAŁEJ WYSTAWY                                 */
+/* ================================================== */
 
 /*
-  Wszystkie modele dodajemy do tego obiektu.
+  Wszystkie boxy znajdują się
+  wewnątrz exhibition.
 
-  Dzięki temu użytkownik wybiera tylko jeden
-  punkt startowy.
-
-  Cała wystawa zostaje ustawiona względem niego.
+  Po dotknięciu ekranu przesuwamy
+  cały exhibition do punktu
+  wykrytego na podłodze.
 */
 
 const exhibition =
@@ -462,262 +494,262 @@ scene.add(
 
 
 
-/* ================================================= */
-/* MODELE                                            */
-/* ================================================= */
+/* ================================================== */
+/* FUNKCJA TWORZĄCA BOX                               */
+/* ================================================== */
 
-const loader =
-  new GLTFLoader();
+function createBox(
 
+  x,
+  y,
+  z,
 
+  width,
+  height,
+  depth,
 
-/*
-  -------------------------------------------------
-  KONFIGURACJA WYSTAWY
-  -------------------------------------------------
+  color
 
-  position:
+) {
 
-  x = lewo / prawo
-  y = góra / dół
-  z = przód / tył
 
-  Jednostka = metr.
+  const geometry =
+    new THREE.BoxGeometry(
 
-  Czyli:
-
-  [0, 0, -2]
-
-  oznacza:
-
-  2 metry przed punktem startowym.
-*/
-
-
-const MODELS = [
-
-  {
-
-    file:
-      "./models/model1.glb",
-
-    position:
-      [0, 0, -2],
-
-    rotation:
-      [0, 0, 0],
-
-    scale:
-      1
-
-  },
-
-
-  {
-
-    file:
-      "./models/model2.glb",
-
-    position:
-      [2, 0, -3],
-
-    rotation:
-      [0, Math.PI / 2, 0],
-
-    scale:
-      1
-
-  },
-
-
-  {
-
-    file:
-      "./models/model3.glb",
-
-    position:
-      [-2, 0, -4],
-
-    rotation:
-      [0, -Math.PI / 4, 0],
-
-    scale:
-      1
-
-  },
-
-
-  {
-
-    file:
-      "./models/model4.glb",
-
-    position:
-      [1, 0, -6],
-
-    rotation:
-      [0, Math.PI, 0],
-
-    scale:
-      1
-
-  },
-
-
-  {
-
-    file:
-      "./models/model5.glb",
-
-    position:
-      [-1.5, 0, -7],
-
-    rotation:
-      [0, 0, 0],
-
-    scale:
-      1
-
-  }
-
-];
-
-
-
-/* ================================================= */
-/* ŁADOWANIE MODELI                                  */
-/* ================================================= */
-
-let loadedModels = 0;
-
-
-MODELS.forEach(
-  function(config) {
-
-    loader.load(
-
-      config.file,
-
-
-      function(gltf) {
-
-        const model =
-          gltf.scene;
-
-
-        /* POZYCJA */
-
-        model.position.set(
-          config.position[0],
-          config.position[1],
-          config.position[2]
-        );
-
-
-        /* ROTACJA */
-
-        model.rotation.set(
-          config.rotation[0],
-          config.rotation[1],
-          config.rotation[2]
-        );
-
-
-        /* SKALA */
-
-        model.scale.setScalar(
-          config.scale
-        );
-
-
-        /*
-          Włączamy poprawne renderowanie
-          tekstur / cieni dla wszystkich
-          elementów modelu.
-        */
-
-        model.traverse(
-
-          function(child) {
-
-            if (child.isMesh) {
-
-              child.frustumCulled = true;
-
-            }
-
-          }
-
-        );
-
-
-        exhibition.add(
-          model
-        );
-
-
-        loadedModels++;
-
-
-        console.log(
-          "Załadowano:",
-          config.file
-        );
-
-
-        console.log(
-          loadedModels +
-          "/" +
-          MODELS.length
-        );
-
-      },
-
-
-      function(progress) {
-
-        if (
-          progress.total > 0
-        ) {
-
-          const percent =
-            Math.round(
-              progress.loaded /
-              progress.total *
-              100
-            );
-
-
-          console.log(
-            config.file,
-            percent + "%"
-          );
-
-        }
-
-      },
-
-
-      function(error) {
-
-        console.error(
-          "Błąd modelu:",
-          config.file,
-          error
-        );
-
-      }
+      width,
+      height,
+      depth
 
     );
 
-  }
+
+  const material =
+    new THREE.MeshStandardMaterial({
+
+      color: color,
+
+      roughness: 0.55,
+
+      metalness: 0.05
+
+    });
+
+
+  const box =
+    new THREE.Mesh(
+
+      geometry,
+      material
+
+    );
+
+
+  /*
+    y + height / 2 sprawia,
+    że box stoi NA PODŁODZE,
+    zamiast być w połowie pod nią.
+  */
+
+  box.position.set(
+
+    x,
+    y + height / 2,
+    z
+
+  );
+
+
+  exhibition.add(
+    box
+  );
+
+
+  return box;
+
+}
+
+
+
+/* ================================================== */
+/* TESTOWE BOXY                                       */
+/* ================================================== */
+
+/*
+  Jednostki Three.js w WebXR
+  odpowiadają mniej więcej metrom.
+
+  Czyli:
+
+  z = -2
+
+  oznacza około 2 metry przed
+  punktem startowym.
+*/
+
+
+/* BOX 1 */
+
+createBox(
+
+  0,      // x
+  0,      // y
+  -2,     // z
+
+  0.7,    // szerokość
+  1.5,    // wysokość
+  0.7,    // głębokość
+
+  0xff3333
+
 );
 
 
 
-/* ================================================= */
-/* WEBXR                                             */
-/* ================================================= */
+/* BOX 2 */
+
+createBox(
+
+  2,
+  0,
+  -3,
+
+  1,
+  1,
+  1,
+
+  0x3399ff
+
+);
+
+
+
+/* BOX 3 */
+
+createBox(
+
+  -2,
+  0,
+  -3,
+
+  0.8,
+  2,
+  0.8,
+
+  0x33ff88
+
+);
+
+
+
+/* BOX 4 */
+
+createBox(
+
+  1.5,
+  0,
+  -5,
+
+  1.2,
+  0.5,
+  1.2,
+
+  0xffcc33
+
+);
+
+
+
+/* BOX 5 */
+
+createBox(
+
+  -1.5,
+  0,
+  -5,
+
+  0.6,
+  2.5,
+  0.6,
+
+  0xcc55ff
+
+);
+
+
+
+/* BOX 6 */
+
+createBox(
+
+  0,
+  0,
+  -7,
+
+  2,
+  1,
+  0.5,
+
+  0x00dddd
+
+);
+
+
+
+/* ================================================== */
+/* DODATKOWA PODSTAWA                                 */
+/* ================================================== */
+
+/*
+  Mały ciemny kwadrat przy początku
+  wystawy, żeby było łatwo zobaczyć
+  punkt odniesienia.
+*/
+
+const baseGeometry =
+  new THREE.BoxGeometry(
+
+    1,
+    0.05,
+    1
+
+  );
+
+
+const baseMaterial =
+  new THREE.MeshStandardMaterial({
+
+    color: 0x222222
+
+  });
+
+
+const base =
+  new THREE.Mesh(
+
+    baseGeometry,
+    baseMaterial
+
+  );
+
+
+base.position.set(
+
+  0,
+  0.025,
+  0
+
+);
+
+
+exhibition.add(
+  base
+);
+
+
+
+/* ================================================== */
+/* WEBXR                                              */
+/* ================================================== */
 
 let session = null;
 
@@ -731,17 +763,21 @@ let exhibitionPlaced = false;
 
 
 
-/* ================================================= */
-/* SPRAWDZENIE WEBXR                                 */
-/* ================================================= */
+/* ================================================== */
+/* SPRAWDŹ CZY AR DZIAŁA                              */
+/* ================================================== */
 
 async function checkXR() {
+
 
   if (!navigator.xr) {
 
     showError(
+
       "Ta przeglądarka nie obsługuje WebXR. " +
-      "Spróbuj Chrome na kompatybilnym urządzeniu Android."
+      "Otwórz stronę w Chrome na kompatybilnym " +
+      "telefonie z Androidem."
+
     );
 
     return false;
@@ -749,44 +785,73 @@ async function checkXR() {
   }
 
 
-  const supported =
-    await navigator.xr.isSessionSupported(
-      "immersive-ar"
-    );
+  try {
+
+    const supported =
+      await navigator.xr.isSessionSupported(
+
+        "immersive-ar"
+
+      );
 
 
-  if (!supported) {
+    if (!supported) {
+
+      showError(
+
+        "Twoje urządzenie nie obsługuje " +
+        "trybu immersive-ar."
+
+      );
+
+      return false;
+
+    }
+
+
+    return true;
+
+  }
+
+  catch (error) {
+
+    console.error(error);
+
 
     showError(
-      "To urządzenie nie obsługuje sesji immersive-ar."
+
+      "Nie udało się sprawdzić obsługi WebXR."
+
     );
+
 
     return false;
 
   }
-
-
-  return true;
 
 }
 
 
 
-/* ================================================= */
-/* START AR                                          */
-/* ================================================= */
+/* ================================================== */
+/* START AR                                           */
+/* ================================================== */
 
 async function startAR() {
 
+
+  const supported =
+    await checkXR();
+
+
+  if (!supported) {
+
+    return;
+
+  }
+
+
   try {
-
-    const supported =
-      await checkXR();
-
-
-    if (!supported) {
-      return;
-    }
 
 
     session =
@@ -797,17 +862,22 @@ async function startAR() {
         {
 
           requiredFeatures: [
+
             "hit-test"
+
           ],
 
           optionalFeatures: [
+
             "dom-overlay",
-            "anchors",
             "local-floor"
+
           ],
 
           domOverlay: {
+
             root: document.body
+
           }
 
         }
@@ -815,14 +885,18 @@ async function startAR() {
       );
 
 
-    renderer.xr.setReferenceSpaceType(
-      "local"
-    );
 
+    /*
+      Podpinamy sesję XR
+      do renderera Three.js.
+    */
 
     await renderer.xr.setSession(
+
       session
+
     );
+
 
 
     startScreen.style.display =
@@ -833,25 +907,39 @@ async function startAR() {
       "block";
 
 
-    /* ----------------------------------------- */
-    /* REFERENCE SPACE                           */
-    /* ----------------------------------------- */
+
+    /*
+      Local reference space
+      utrzymuje obiekty w świecie
+      podczas sesji AR.
+    */
 
     referenceSpace =
       await session.requestReferenceSpace(
+
         "local"
+
       );
 
+
+
+    /*
+      Viewer space jest potrzebne
+      do hit-testu.
+    */
 
     viewerSpace =
       await session.requestReferenceSpace(
+
         "viewer"
+
       );
 
 
-    /* ----------------------------------------- */
-    /* HIT TEST                                  */
-    /* ----------------------------------------- */
+
+    /*
+      Tworzymy źródło hit-test.
+    */
 
     hitTestSource =
       await session.requestHitTestSource({
@@ -861,41 +949,51 @@ async function startAR() {
       });
 
 
-    /* ----------------------------------------- */
-    /* SELECT                                    */
-    /* ----------------------------------------- */
+
+    /*
+      "select" = tapnięcie ekranu
+      podczas sesji AR.
+    */
 
     session.addEventListener(
+
       "select",
       placeExhibition
+
     );
 
 
-    /* ----------------------------------------- */
-    /* KONIEC SESJI                              */
-    /* ----------------------------------------- */
 
     session.addEventListener(
+
       "end",
       onSessionEnd
+
     );
+
 
 
     renderer.setAnimationLoop(
+
       render
+
     );
 
 
   }
 
-  catch(error) {
+  catch (error) {
+
 
     console.error(error);
 
 
     showError(
-      "Nie udało się uruchomić AR. " +
-      "Sprawdź uprawnienia kamery oraz HTTPS."
+
+      "Nie udało się uruchomić AR.<br><br>" +
+      "Sprawdź uprawnienia kamery oraz czy " +
+      "strona działa przez HTTPS."
+
     );
 
   }
@@ -904,86 +1002,125 @@ async function startAR() {
 
 
 
-/* ================================================= */
-/* USTAWIENIE WYSTAWY                               */
-/* ================================================= */
+/* ================================================== */
+/* USTAWIENIE WYSTAWY                                */
+/* ================================================== */
 
 function placeExhibition() {
 
+
+  /*
+    Nie ma wykrytej powierzchni.
+  */
+
   if (!reticle.visible) {
-    return;
-  }
 
-
-  if (exhibitionPlaced) {
     return;
+
   }
 
 
   /*
-    Pobieramy pozycję z macierzy reticle.
+    Wystawę ustawiamy tylko raz.
   */
+
+  if (exhibitionPlaced) {
+
+    return;
+
+  }
+
+
+
+  /* ============================== */
+  /* POZYCJA                        */
+  /* ============================== */
 
   const position =
     new THREE.Vector3();
 
 
   position.setFromMatrixPosition(
+
     reticle.matrix
+
   );
 
 
   exhibition.position.copy(
+
     position
+
   );
 
 
 
-  /*
-    Pobieramy kierunek telefonu.
+  /* ============================== */
+  /* KIERUNEK                       */
+  /* ============================== */
 
-    Chcemy, żeby "przód wystawy"
-    był ustawiony względem użytkownika.
+  /*
+    Pobieramy kierunek,
+    w którym patrzy telefon.
   */
 
   const xrCamera =
     renderer.xr.getCamera(
+
       camera
+
     );
 
 
-  const cameraDirection =
+  const direction =
     new THREE.Vector3();
 
 
   xrCamera.getWorldDirection(
-    cameraDirection
+
+    direction
+
   );
 
 
   /*
-    Interesuje nas tylko obrót
-    wokół osi Y.
+    Ignorujemy patrzenie
+    góra / dół.
   */
 
-  cameraDirection.y = 0;
+  direction.y = 0;
 
-  cameraDirection.normalize();
 
+  direction.normalize();
+
+
+
+  /*
+    Obliczamy obrót wystawy.
+  */
 
   const angle =
     Math.atan2(
-      cameraDirection.x,
-      cameraDirection.z
+
+      direction.x,
+      direction.z
+
     );
 
 
   exhibition.rotation.set(
+
     0,
     angle + Math.PI,
     0
+
   );
 
+
+
+  /* ============================== */
+  /* POKAŻ WYSTAWĘ                  */
+  /* ============================== */
 
   exhibition.visible =
     true;
@@ -997,26 +1134,37 @@ function placeExhibition() {
     false;
 
 
+
   instruction.innerHTML =
+
     "Wystawa ustawiona.<br>" +
-    "Możesz teraz chodzić pomiędzy modelami.";
+    "Idź do przodu i chodź między boxami.";
 
 
   status.innerHTML =
+
     "AR aktywne";
 
 }
 
 
 
-/* ================================================= */
-/* RENDER                                            */
-/* ================================================= */
+/* ================================================== */
+/* RENDER LOOP                                        */
+/* ================================================== */
 
 function render(
+
   timestamp,
   frame
+
 ) {
+
+
+  /*
+    Hit-test wykonujemy tylko
+    przed ustawieniem wystawy.
+  */
 
   if (
 
@@ -1027,15 +1175,26 @@ function render(
 
   ) {
 
+
     const hitTestResults =
       frame.getHitTestResults(
+
         hitTestSource
+
       );
 
 
+
+    /* ============================== */
+    /* ZNALEZIONO PODŁOGĘ             */
+    /* ============================== */
+
     if (
+
       hitTestResults.length > 0
+
     ) {
+
 
       const hit =
         hitTestResults[0];
@@ -1043,43 +1202,59 @@ function render(
 
       const pose =
         hit.getPose(
+
           referenceSpace
+
         );
 
 
+
       if (pose) {
+
 
         reticle.visible =
           true;
 
 
         reticle.matrix.fromArray(
+
           pose.transform.matrix
+
         );
 
 
         status.innerHTML =
+
           "Powierzchnia wykryta";
 
 
         instruction.innerHTML =
+
           "Dotknij ekranu, aby ustawić wystawę.";
 
       }
 
     }
 
+
+    /* ============================== */
+    /* BRAK PODŁOGI                   */
+    /* ============================== */
+
     else {
+
 
       reticle.visible =
         false;
 
 
       status.innerHTML =
+
         "Szukanie powierzchni...";
 
 
       instruction.innerHTML =
+
         "Skieruj telefon na podłogę " +
         "i poruszaj nim powoli.";
 
@@ -1088,30 +1263,47 @@ function render(
   }
 
 
+
+  /* ============================== */
+  /* RENDER                         */
+  /* ============================== */
+
   renderer.render(
+
     scene,
     camera
+
   );
 
 }
 
 
 
-/* ================================================= */
-/* KONIEC SESJI                                      */
-/* ================================================= */
+/* ================================================== */
+/* KONIEC SESJI                                       */
+/* ================================================== */
 
 function onSessionEnd() {
 
-  session = null;
 
-  hitTestSource = null;
+  session =
+    null;
 
-  referenceSpace = null;
 
-  viewerSpace = null;
+  hitTestSource =
+    null;
 
-  exhibitionPlaced = false;
+
+  referenceSpace =
+    null;
+
+
+  viewerSpace =
+    null;
+
+
+  exhibitionPlaced =
+    false;
 
 
   exhibition.visible =
@@ -1123,7 +1315,9 @@ function onSessionEnd() {
 
 
   renderer.setAnimationLoop(
+
     null
+
   );
 
 
@@ -1138,11 +1332,12 @@ function onSessionEnd() {
 
 
 
-/* ================================================= */
-/* BŁĄD                                              */
-/* ================================================= */
+/* ================================================== */
+/* ERROR                                              */
+/* ================================================== */
 
 function showError(message) {
+
 
   startScreen.style.display =
     "none";
@@ -1159,9 +1354,9 @@ function showError(message) {
 
 
 
-/* ================================================= */
-/* RESIZE                                            */
-/* ================================================= */
+/* ================================================== */
+/* RESIZE                                             */
+/* ================================================== */
 
 window.addEventListener(
 
@@ -1169,7 +1364,9 @@ window.addEventListener(
 
   function() {
 
+
     camera.aspect =
+
       window.innerWidth /
       window.innerHeight;
 
@@ -1178,8 +1375,10 @@ window.addEventListener(
 
 
     renderer.setSize(
+
       window.innerWidth,
       window.innerHeight
+
     );
 
   }
@@ -1188,13 +1387,15 @@ window.addEventListener(
 
 
 
-/* ================================================= */
-/* BUTTON                                            */
-/* ================================================= */
+/* ================================================== */
+/* START BUTTON                                       */
+/* ================================================== */
 
 startButton.addEventListener(
+
   "click",
   startAR
+
 );
 
 </script>

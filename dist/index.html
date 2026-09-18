@@ -6,11 +6,10 @@
 
   <meta
     name="viewport"
-    content="width=device-width, initial-scale=1.0,
-             maximum-scale=1.0, user-scalable=no"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
   >
 
-  <title>Wystawa AR</title>
+  <title>WebAR - test boxów</title>
 
   <style>
     * {
@@ -23,29 +22,21 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-
-      font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Arial,
-        sans-serif;
-
       background: #000;
+      font-family: Arial, sans-serif;
     }
 
     canvas {
       display: block;
     }
 
-    /* ----------------------------- */
+    /* ============================== */
     /* EKRAN STARTOWY                */
-    /* ----------------------------- */
+    /* ============================== */
 
     #start-screen {
       position: fixed;
       inset: 0;
-
       z-index: 100;
 
       display: flex;
@@ -54,13 +45,7 @@
 
       padding: 30px;
 
-      background:
-        linear-gradient(
-          180deg,
-          #111 0%,
-          #000 100%
-        );
-
+      background: #111;
       color: white;
       text-align: center;
     }
@@ -71,14 +56,12 @@
     }
 
     .start-box h1 {
-      margin: 0 0 16px;
-
-      font-size: 34px;
-      font-weight: 700;
+      margin: 0 0 15px;
+      font-size: 32px;
     }
 
     .start-box p {
-      margin: 0 0 30px;
+      margin: 0 0 25px;
 
       opacity: 0.75;
 
@@ -91,21 +74,21 @@
 
       padding: 18px 24px;
 
-      border: 0;
+      border: none;
       border-radius: 14px;
 
       background: white;
       color: black;
 
       font-size: 17px;
-      font-weight: 700;
+      font-weight: bold;
 
       cursor: pointer;
     }
 
-    /* ----------------------------- */
+    /* ============================== */
     /* UI W AR                       */
-    /* ----------------------------- */
+    /* ============================== */
 
     #ar-ui {
       position: fixed;
@@ -113,15 +96,15 @@
 
       z-index: 20;
 
-      pointer-events: none;
-
       display: none;
+
+      pointer-events: none;
     }
 
     #instruction {
       position: absolute;
 
-      top: 24px;
+      top: 20px;
       left: 50%;
 
       transform: translateX(-50%);
@@ -131,11 +114,9 @@
 
       padding: 14px 18px;
 
-      border-radius: 16px;
+      border-radius: 15px;
 
-      background: rgba(0, 0, 0, 0.68);
-
-      backdrop-filter: blur(8px);
+      background: rgba(0, 0, 0, 0.65);
 
       color: white;
 
@@ -155,7 +136,7 @@
 
       padding: 10px 16px;
 
-      border-radius: 999px;
+      border-radius: 100px;
 
       background: rgba(0, 0, 0, 0.65);
 
@@ -164,18 +145,21 @@
       font-size: 13px;
     }
 
-    #error {
-      display: none;
+    /* ============================== */
+    /* ERROR                         */
+    /* ============================== */
 
+    #error {
       position: fixed;
       inset: 0;
 
       z-index: 200;
 
-      padding: 40px;
-
+      display: none;
       align-items: center;
       justify-content: center;
+
+      padding: 30px;
 
       background: #111;
       color: white;
@@ -184,34 +168,43 @@
     }
 
     #error div {
-      max-width: 500px;
+      max-width: 450px;
     }
-
-    #error h2 {
-      margin-top: 0;
-    }
-
   </style>
-  <script type="module" crossorigin src="/assets/index-CbkN_DPb.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/three-CGMYYGyN.js">
+<script type="importmap">
+{
+  "imports": {
+
+    "three":
+      "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
+
+  }
+}
+</script>
+  <script type="module" crossorigin src="/assets/index-CvMHAUDT.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/three-KVmarFOR.js">
 </head>
+
 
 <body>
 
-<!-- ================================================= -->
-<!-- EKRAN STARTOWY                                    -->
-<!-- ================================================= -->
+
+<!-- ================================================== -->
+<!-- START                                              -->
+<!-- ================================================== -->
 
 <div id="start-screen">
 
   <div class="start-box">
 
-    <h1>Wystawa AR</h1>
+    <h1>Test WebAR</h1>
 
     <p>
-      Uruchom kamerę, skieruj telefon na podłogę
-      i poruszaj nim powoli. Gdy pojawi się białe
-      kółko, dotknij ekranu, aby ustawić wystawę.
+      Uruchom AR, skieruj telefon na podłogę
+      i poruszaj nim powoli.
+      <br><br>
+      Kiedy pojawi się białe kółko,
+      dotknij ekranu.
     </p>
 
     <button id="start-ar">
@@ -223,14 +216,15 @@
 </div>
 
 
-<!-- ================================================= -->
-<!-- INTERFEJS AR                                      -->
-<!-- ================================================= -->
+
+<!-- ================================================== -->
+<!-- UI PODCZAS AR                                      -->
+<!-- ================================================== -->
 
 <div id="ar-ui">
 
   <div id="instruction">
-    Poruszaj telefonem i skieruj kamerę na podłogę.
+    Skieruj telefon na podłogę.
   </div>
 
   <div id="status">
@@ -240,9 +234,10 @@
 </div>
 
 
-<!-- ================================================= -->
-<!-- BŁĄD                                              -->
-<!-- ================================================= -->
+
+<!-- ================================================== -->
+<!-- ERROR                                              -->
+<!-- ================================================== -->
 
 <div id="error">
 
@@ -251,8 +246,7 @@
     <h2>AR niedostępne</h2>
 
     <p id="error-text">
-      Twoje urządzenie lub przeglądarka
-      nie obsługuje WebXR AR.
+      Twoje urządzenie nie obsługuje WebXR AR.
     </p>
 
   </div>
@@ -261,8 +255,14 @@
 
 
 
+<!-- ================================================== -->
+<!-- THREE.JS                                           -->
+<!-- ================================================== -->
 
-
+
+
+
+
 
 </body>
 </html>
