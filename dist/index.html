@@ -1,223 +1,516 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8">
+  <meta charset="UTF-8">
 
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
->
+  <meta
+    name="viewport"
+    content="width=device-width,
+             initial-scale=1.0,
+             maximum-scale=1.0,
+             user-scalable=no"
+  >
 
-<title>WebXR Marker Exhibition</title>
+  <title>HIRO AR Exhibition</title>
 
-<style>
-* {
-  box-sizing: border-box;
-}
+  <!-- A-FRAME -->
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
-html, body {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #000;
-  font-family: Arial, sans-serif;
-}
+  <!-- AR.JS - MARKER TRACKING -->
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 
-canvas {
-  display: block;
-}
+  <style>
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
 
-#start {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
+    #ui {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+      width: calc(100% - 40px);
+      max-width: 450px;
 
-  padding: 30px;
+      padding: 15px 18px;
 
-  background: #111;
-  color: white;
-  text-align: center;
-}
+      background: rgba(0, 0, 0, 0.75);
+      color: white;
 
-#start-inner {
-  width: 100%;
-  max-width: 430px;
-}
+      border-radius: 14px;
 
-#start h1 {
-  margin: 0 0 15px;
-  font-size: 30px;
-}
+      text-align: center;
 
-#start p {
-  opacity: 0.75;
-  line-height: 1.5;
-}
+      z-index: 9999;
 
-#start-button {
-  width: 100%;
-  padding: 18px;
+      pointer-events: none;
+    }
 
-  border: 0;
-  border-radius: 14px;
+    #status {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
 
-  background: white;
-  color: black;
+    #info {
+      font-size: 13px;
+      opacity: 0.8;
+      line-height: 1.4;
+    }
 
-  font-size: 17px;
-  font-weight: bold;
-
-  cursor: pointer;
-}
-
-#status {
-  position: fixed;
-
-  top: 20px;
-  left: 50%;
-
-  transform: translateX(-50%);
-
-  z-index: 50;
-
-  display: none;
-
-  width: calc(100% - 30px);
-  max-width: 480px;
-
-  padding: 14px 18px;
-
-  border-radius: 14px;
-
-  background: rgba(0,0,0,0.72);
-  color: white;
-
-  text-align: center;
-  line-height: 1.4;
-
-  pointer-events: none;
-}
-
-#debug {
-  position: fixed;
-
-  bottom: 20px;
-  left: 20px;
-
-  z-index: 50;
-
-  display: none;
-
-  padding: 12px 14px;
-
-  border-radius: 10px;
-
-  background: rgba(0,0,0,0.72);
-  color: white;
-
-  font-family: monospace;
-  font-size: 12px;
-
-  pointer-events: none;
-}
-
-#error {
-  position: fixed;
-  inset: 0;
-
-  z-index: 200;
-
-  display: none;
-  align-items: center;
-  justify-content: center;
-
-  padding: 30px;
-
-  background: #111;
-  color: white;
-
-  text-align: center;
-}
-
-#error > div {
-  max-width: 500px;
-}
-</style>
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
-  }
-}
-</script>
-  <script type="module" crossorigin src="/assets/index-Cq0QENmt.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/three-C5aeorcY.js">
+    #debug {
+      margin-top: 8px;
+      font-family: monospace;
+      font-size: 12px;
+      opacity: 0.7;
+    }
+  </style>
 </head>
 
 <body>
 
-<div id="start">
-  <div id="start-inner">
+<!-- ========================================== -->
+<!-- UI                                         -->
+<!-- ========================================== -->
 
-    <h1>Wystawa AR</h1>
+<div id="ui">
 
-    <p>
-      Uruchom AR i skieruj kamerę na marker Hiro
-      wydrukowany na ścianie.
-      <br><br>
-      Po wykryciu markera wystawa zostanie
-      automatycznie ustawiona w przestrzeni.
-    </p>
-
-    <button id="start-button">
-      URUCHOM AR
-    </button>
-
+  <div id="status">
+    🔎 Szukam markera HIRO...
   </div>
-</div>
 
-
-<div id="status">
-  Szukam markera HIRO...
-</div>
-
-
-<div id="debug">
-
-  MARKER:
-  <span id="marker-state">NIE</span>
-
-  <br>
-
-  KALIBRACJA:
-  <span id="calibration-state">NIE</span>
-
-  <br><br>
-
-  RUCH:
-  <span id="distance">0.00</span> m
-
-</div>
-
-
-<div id="error">
-  <div>
-    <h2>AR niedostępne</h2>
-    <p id="error-text"></p>
+  <div id="info">
+    Skieruj kamerę na marker znajdujący się na ścianie.
   </div>
+
+  <div id="debug">
+    marker: niewidoczny
+  </div>
+
 </div>
 
 
+<!-- ========================================== -->
+<!-- SCENA AR                                   -->
+<!-- ========================================== -->
+
+<a-scene
+
+  embedded
+
+  vr-mode-ui="enabled: false"
+
+  renderer="
+    antialias: true;
+    alpha: true;
+    colorManagement: true;
+  "
+
+  arjs="
+    sourceType: webcam;
+    debugUIEnabled: false;
+    detectionMode: mono;
+    matrixCodeType: 3x3;
+  "
+
+>
+
+
+  <!-- ======================================== -->
+  <!-- ŚWIATŁO                                 -->
+  <!-- ======================================== -->
+
+  <a-entity
+    light="
+      type: ambient;
+      intensity: 1.5;
+      color: #ffffff;
+    "
+  ></a-entity>
+
+
+  <a-entity
+    light="
+      type: directional;
+      intensity: 1.5;
+      color: #ffffff;
+    "
+
+    position="1 3 2"
+
+  ></a-entity>
 
 
 
+  <!-- ======================================== -->
+  <!-- MARKER HIRO                              -->
+  <!-- ======================================== -->
+
+  <!--
+      Marker jest naszym fizycznym punktem
+      odniesienia.
+
+      UWAGA:
+
+      Lokalny układ współrzędnych poniżej
+      należy do markera.
+
+      Czyli:
+
+            Y
+            ↑
+            |
+            |
+            +----→ X
+
+      Z wychodzi prostopadle z markera.
+  -->
+
+  <a-marker
+    id="hiro-marker"
+    preset="hiro"
+    smooth="true"
+    smoothCount="10"
+    smoothTolerance="0.01"
+    smoothThreshold="5"
+  >
+
+
+    <!-- ====================================== -->
+    <!-- DEBUG MARKERA                          -->
+    <!-- ====================================== -->
+
+    <!--
+        Mały czerwony box bezpośrednio
+        na markerze.
+
+        Dzięki niemu od razu widzimy,
+        czy marker jest poprawnie śledzony.
+    -->
+
+    <a-box
+      position="0 0.05 0"
+      scale="0.15 0.1 0.15"
+      color="#ff0000"
+    ></a-box>
+
+
+
+    <!-- ====================================== -->
+    <!-- CAŁA WYSTAWA                           -->
+    <!-- ====================================== -->
+
+    <!--
+        TO JEST NAJWAŻNIEJSZY ELEMENT.
+
+        Cała wystawa jest dzieckiem markera.
+
+        Jeżeli marker jest na ścianie,
+        możemy przesunąć wystawę:
+
+        w dół,
+        przed ścianę,
+        w lewo / prawo.
+
+        Te wartości trzeba skalibrować
+        pod fizyczne miejsce.
+    -->
+
+    <a-entity
+
+      id="exhibition"
+
+      position="0 -1.5 1.0"
+
+      rotation="-90 0 0"
+
+    >
+
+
+      <!-- ==================================== -->
+      <!-- PUNKT ZERO                           -->
+      <!-- ==================================== -->
+
+      <a-cylinder
+
+        position="0 0.01 0"
+
+        radius="0.15"
+
+        height="0.02"
+
+        color="#ffffff"
+
+      ></a-cylinder>
+
+
+
+      <!-- ==================================== -->
+      <!-- RZEŹBA 1                             -->
+      <!-- ==================================== -->
+
+      <a-box
+
+        position="0 0.4 -0.8"
+
+        width="0.3"
+
+        height="0.8"
+
+        depth="0.3"
+
+        color="#ff3333"
+
+      ></a-box>
+
+
+
+      <!-- ==================================== -->
+      <!-- RZEŹBA 2                             -->
+      <!-- ==================================== -->
+
+      <a-sphere
+
+        position="-0.7 0.25 -1.3"
+
+        radius="0.25"
+
+        color="#3388ff"
+
+      ></a-sphere>
+
+
+
+      <!-- ==================================== -->
+      <!-- RZEŹBA 3                             -->
+      <!-- ==================================== -->
+
+      <a-cylinder
+
+        position="0.8 0.6 -1.5"
+
+        radius="0.18"
+
+        height="1.2"
+
+        color="#33dd77"
+
+      ></a-cylinder>
+
+
+
+      <!-- ==================================== -->
+      <!-- RZEŹBA 4                             -->
+      <!-- ==================================== -->
+
+      <a-torus
+
+        position="-0.5 0.6 -2.2"
+
+        radius="0.35"
+
+        radius-tubular="0.1"
+
+        rotation="90 0 0"
+
+        color="#ffcc22"
+
+      ></a-torus>
+
+
+
+      <!-- ==================================== -->
+      <!-- RZEŹBA 5                             -->
+      <!-- ==================================== -->
+
+      <a-cone
+
+        position="0.7 0.5 -2.5"
+
+        radius-bottom="0.35"
+
+        radius-top="0"
+
+        height="1"
+
+        color="#cc44ff"
+
+      ></a-cone>
+
+
+
+      <!-- ==================================== -->
+      <!-- RZEŹBA 6                             -->
+      <!-- ==================================== -->
+
+      <a-box
+
+        position="0 0.35 -3.2"
+
+        width="0.7"
+
+        height="0.7"
+
+        depth="0.7"
+
+        rotation="0 45 0"
+
+        color="#00dddd"
+
+      ></a-box>
+
+
+    </a-entity>
+
+
+  </a-marker>
+
+
+
+  <!-- ======================================== -->
+  <!-- KAMERA                                   -->
+  <!-- ======================================== -->
+
+  <a-entity camera></a-entity>
+
+
+</a-scene>
+
+
+
+<script>
+
+  /* ========================================== */
+  /* ELEMENTY                                   */
+  /* ========================================== */
+
+  const marker =
+    document.querySelector("#hiro-marker");
+
+  const status =
+    document.querySelector("#status");
+
+  const info =
+    document.querySelector("#info");
+
+  const debug =
+    document.querySelector("#debug");
+
+
+  let markerVisible = false;
+
+  let foundCounter = 0;
+
+  let lostCounter = 0;
+
+
+
+  /* ========================================== */
+  /* MARKER FOUND                               */
+  /* ========================================== */
+
+  marker.addEventListener(
+    "markerFound",
+    function () {
+
+      markerVisible = true;
+
+      foundCounter++;
+
+
+      status.innerHTML =
+        "✓ MARKER ZNALEZIONY";
+
+
+      info.innerHTML =
+        "Punkt odniesienia wystawy został wykryty.";
+
+
+      debug.innerHTML =
+        "marker: widoczny | wykrycia: "
+        + foundCounter;
+
+    }
+  );
+
+
+
+  /* ========================================== */
+  /* MARKER LOST                                */
+  /* ========================================== */
+
+  marker.addEventListener(
+    "markerLost",
+    function () {
+
+      markerVisible = false;
+
+      lostCounter++;
+
+
+      status.innerHTML =
+        "⚠ MARKER POZA KADREM";
+
+
+      info.innerHTML =
+        "Skieruj kamerę ponownie na marker HIRO.";
+
+
+      debug.innerHTML =
+        "marker: niewidoczny | utracenia: "
+        + lostCounter;
+
+    }
+  );
+
+
+
+  /* ========================================== */
+  /* DEBUG                                      */
+  /* ========================================== */
+
+  setInterval(
+    function () {
+
+      if (!markerVisible) {
+        return;
+      }
+
+
+      const object =
+        marker.object3D;
+
+
+      const p =
+        object.position;
+
+
+      debug.innerHTML =
+
+        "marker: widoczny" +
+
+        "<br>X: " +
+        p.x.toFixed(2) +
+
+        " Y: " +
+        p.y.toFixed(2) +
+
+        " Z: " +
+        p.z.toFixed(2);
+
+    },
+
+    200
+  );
+
+</script>
 
 
 </body>
 </html>
-
