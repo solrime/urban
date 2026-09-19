@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -198,8 +197,7 @@ canvas {
       Kiedy pojawi się białe kółko,
       dotknij ekranu.
       <br><br>
-      W tym miejscu zostanie ustawiony
-      początek całej wystawy.
+      Punkt można ustawić tylko raz.
     </p>
 
     <button id="start-button">
@@ -489,14 +487,6 @@ function material(color) {
 /* RZEŹBA 1                                  */
 /* ========================================= */
 
-/*
-       █
-       █
-       █
-
-  80 cm przed punktem startowym.
-*/
-
 const sculpture1 =
   new THREE.Mesh(
 
@@ -514,11 +504,9 @@ const sculpture1 =
 
 
 sculpture1.position.set(
-
   0,
   0.4,
   -0.8
-
 );
 
 
@@ -531,10 +519,6 @@ exhibition.add(
 /* ========================================= */
 /* RZEŹBA 2                                  */
 /* ========================================= */
-
-/*
-  Kula po lewej.
-*/
 
 const sculpture2 =
   new THREE.Mesh(
@@ -553,11 +537,9 @@ const sculpture2 =
 
 
 sculpture2.position.set(
-
   -0.7,
   0.25,
   -1.3
-
 );
 
 
@@ -570,10 +552,6 @@ exhibition.add(
 /* ========================================= */
 /* RZEŹBA 3                                  */
 /* ========================================= */
-
-/*
-  Wysoki słup po prawej.
-*/
 
 const sculpture3 =
   new THREE.Mesh(
@@ -593,11 +571,9 @@ const sculpture3 =
 
 
 sculpture3.position.set(
-
   0.8,
   0.6,
   -1.5
-
 );
 
 
@@ -610,10 +586,6 @@ exhibition.add(
 /* ========================================= */
 /* RZEŹBA 4                                  */
 /* ========================================= */
-
-/*
-  Torus trochę dalej.
-*/
 
 const sculpture4 =
   new THREE.Mesh(
@@ -633,11 +605,9 @@ const sculpture4 =
 
 
 sculpture4.position.set(
-
   -0.5,
   0.6,
   -2.2
-
 );
 
 
@@ -654,10 +624,6 @@ exhibition.add(
 /* ========================================= */
 /* RZEŹBA 5                                  */
 /* ========================================= */
-
-/*
-  Stożek.
-*/
 
 const sculpture5 =
   new THREE.Mesh(
@@ -676,11 +642,9 @@ const sculpture5 =
 
 
 sculpture5.position.set(
-
   0.7,
   0.5,
   -2.5
-
 );
 
 
@@ -693,10 +657,6 @@ exhibition.add(
 /* ========================================= */
 /* RZEŹBA 6                                  */
 /* ========================================= */
-
-/*
-  Duży box dalej.
-*/
 
 const sculpture6 =
   new THREE.Mesh(
@@ -715,11 +675,9 @@ const sculpture6 =
 
 
 sculpture6.position.set(
-
   0,
   0.35,
   -3.2
-
 );
 
 
@@ -736,11 +694,6 @@ exhibition.add(
 /* ========================================= */
 /* PUNKT ZERO                                */
 /* ========================================= */
-
-/*
-  Mały ring pokazujący punkt,
-  od którego liczona jest wystawa.
-*/
 
 const originGeometry =
   new THREE.RingGeometry(
@@ -789,6 +742,13 @@ let viewerSpace = null;
 
 let hitTestSource = null;
 
+
+/*
+  FALSE = wystawa nie została jeszcze ustawiona.
+
+  Po pierwszym kliknięciu zmieniamy na TRUE
+  i nie pozwalamy już ustawić jej ponownie.
+*/
 let exhibitionPlaced = false;
 
 
@@ -875,16 +835,6 @@ async function startAR() {
 
 
 
-    /* ===================================== */
-    /* WAŻNE                                */
-    /* ===================================== */
-
-    /*
-      Używamy dokładnie tego samego
-      reference space co w działającym
-      teście 6DoF.
-    */
-
     renderer.xr.setReferenceSpaceType(
       "local"
     );
@@ -914,6 +864,10 @@ async function startAR() {
 
 
 
+    /*
+      Kliknięcie działa tylko do momentu
+      ustawienia wystawy.
+    */
     session.addEventListener(
       "select",
       placeExhibition
@@ -966,12 +920,15 @@ async function startAR() {
 
 
 /* ========================================= */
-/* POSTAW WYSTAWĘ                            */
+/* POSTAW WYSTAWĘ — TYLKO RAZ                */
 /* ========================================= */
 
 function placeExhibition() {
 
 
+  /*
+    Nie znaleźliśmy jeszcze podłogi.
+  */
   if (!reticle.visible) {
 
     return;
@@ -979,6 +936,12 @@ function placeExhibition() {
   }
 
 
+  /*
+    DODATKOWA BLOKADA.
+
+    Jeśli wystawa została już ustawiona,
+    absolutnie nic nie robimy.
+  */
   if (exhibitionPlaced) {
 
     return;
@@ -988,8 +951,7 @@ function placeExhibition() {
 
 
   /*
-    Pobieramy pozycję reticle
-    bezpośrednio z hit-testu.
+    Pobieramy pozycję białego kółka.
   */
 
   const hitPosition =
@@ -1003,8 +965,8 @@ function placeExhibition() {
 
 
   /*
-    CAŁA WYSTAWA zostaje przyklejona
-    do tego miejsca w local reference space.
+    Ustawiamy CAŁĄ wystawę
+    w tym jednym punkcie.
   */
 
   exhibition.position.copy(
@@ -1016,14 +978,6 @@ function placeExhibition() {
   /* ===================================== */
   /* OBRÓT WYSTAWY                         */
   /* ===================================== */
-
-  /*
-    Sprawdzamy kierunek patrzenia
-    w momencie ustawiania wystawy.
-
-    Dzięki temu obiekty pojawią się
-    "przed użytkownikiem".
-  */
 
   const xrCamera =
     renderer.xr.getCamera(
@@ -1065,19 +1019,54 @@ function placeExhibition() {
 
 
   /* ===================================== */
-  /* POKAŻ                                 */
+  /* POKAŻ WYSTAWĘ                         */
   /* ===================================== */
 
   exhibition.visible =
     true;
 
 
+
+  /*
+    WAŻNE:
+
+    Od tej chwili wystawa jest już ustawiona.
+  */
+
   exhibitionPlaced =
     true;
 
 
+
+  /*
+    Chowamy białe kółko.
+  */
+
   reticle.visible =
     false;
+
+
+
+  /*
+    ========================================
+    NAJWAŻNIEJSZA ZMIANA
+    ========================================
+
+    Usuwamy event "select".
+
+    Dzięki temu kolejne przypadkowe
+    dotknięcia telefonu NIE mogą ponownie
+    uruchomić placeExhibition().
+  */
+
+  if (session) {
+
+    session.removeEventListener(
+      "select",
+      placeExhibition
+    );
+
+  }
 
 
 
@@ -1098,7 +1087,7 @@ function placeExhibition() {
   instruction.innerHTML =
 
     "Wystawa ustawiona.<br>" +
-    "Możesz teraz fizycznie chodzić między obiektami.";
+    "Punkt został zablokowany.";
 
 }
 
@@ -1114,9 +1103,10 @@ function render(
 ) {
 
 
-  /* ===================================== */
-  /* HIT TEST                              */
-  /* ===================================== */
+  /*
+    Hit-test działa TYLKO przed
+    ustawieniem wystawy.
+  */
 
   if (
 
@@ -1202,14 +1192,6 @@ function render(
   ) {
 
 
-    /*
-      Tak samo jak w naszym
-      działającym teście 6DoF.
-
-      Pobieramy pose bezpośrednio
-      z WebXR.
-    */
-
     const viewerPose =
       frame.getViewerPose(
         referenceSpace
@@ -1276,6 +1258,14 @@ function endSession() {
   hitTestSource =
     null;
 
+
+  /*
+    Resetujemy dopiero po ZAKOŃCZENIU
+    całej sesji AR.
+
+    Przy następnym uruchomieniu użytkownik
+    będzie mógł ponownie wybrać punkt.
+  */
 
   exhibitionPlaced =
     false;
@@ -1382,6 +1372,5 @@ startButton.addEventListener(
 
 </body>
 </html>
-```
 
 
