@@ -1,743 +1,1522 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0,
-    maximum-scale=1.0, user-scalable=no"
-  >
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
 
-  <title>AR Hiro Exhibition</title>
+<title>WebXR Marker Exhibition</title>
 
-  <!-- A-FRAME -->
-  <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+<style>
+* {
+  box-sizing: border-box;
+}
 
-  <!-- AR.JS -->
-  <script src="https://cdn.jsdelivr.net/npm/@ar-js-org/ar.js@3.4.7/aframe/build/aframe-ar.js"></script>
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  font-family: Arial, sans-serif;
+}
 
-  <style>
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      width: 100%;
-      height: 100%;
-      font-family: Arial, sans-serif;
-    }
+canvas {
+  display: block;
+}
 
-    #ui {
-      position: fixed;
-      inset: 0;
-      z-index: 100;
-      pointer-events: none;
-    }
+#start {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
 
-    #status {
-      position: absolute;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-      width: calc(100% - 40px);
-      max-width: 450px;
+  padding: 30px;
 
-      padding: 14px 18px;
+  background: #111;
+  color: white;
+  text-align: center;
+}
 
-      background: rgba(0, 0, 0, 0.72);
-      color: white;
+#start-inner {
+  width: 100%;
+  max-width: 430px;
+}
 
-      border-radius: 14px;
+#start h1 {
+  margin: 0 0 15px;
+  font-size: 30px;
+}
 
-      text-align: center;
+#start p {
+  opacity: 0.75;
+  line-height: 1.5;
+}
 
-      font-size: 15px;
-      line-height: 1.4;
-    }
+#start-button {
+  width: 100%;
+  padding: 18px;
 
-    #placeButton {
-      position: absolute;
+  border: 0;
+  border-radius: 14px;
 
-      left: 50%;
-      bottom: 35px;
+  background: white;
+  color: black;
 
-      transform: translateX(-50%);
+  font-size: 17px;
+  font-weight: bold;
 
-      display: none;
+  cursor: pointer;
+}
 
-      padding: 16px 28px;
+#status {
+  position: fixed;
 
-      border: none;
-      border-radius: 14px;
+  top: 20px;
+  left: 50%;
 
-      background: white;
-      color: black;
+  transform: translateX(-50%);
 
-      font-size: 16px;
-      font-weight: bold;
+  z-index: 50;
 
-      pointer-events: auto;
-      cursor: pointer;
-    }
+  display: none;
 
-    #resetButton {
-      position: absolute;
+  width: calc(100% - 30px);
+  max-width: 480px;
 
-      right: 20px;
-      bottom: 35px;
+  padding: 14px 18px;
 
-      display: none;
+  border-radius: 14px;
 
-      padding: 12px 18px;
+  background: rgba(0,0,0,0.72);
+  color: white;
 
-      border: none;
-      border-radius: 12px;
+  text-align: center;
+  line-height: 1.4;
 
-      background: rgba(0,0,0,0.75);
-      color: white;
+  pointer-events: none;
+}
 
-      font-size: 14px;
+#debug {
+  position: fixed;
 
-      pointer-events: auto;
-      cursor: pointer;
-    }
+  bottom: 20px;
+  left: 20px;
 
-    #markerIndicator {
-      position: absolute;
+  z-index: 50;
 
-      left: 50%;
-      top: 50%;
+  display: none;
 
-      transform: translate(-50%, -50%);
+  padding: 12px 14px;
 
-      width: 28px;
-      height: 28px;
+  border-radius: 10px;
 
-      border: 3px solid white;
-      border-radius: 50%;
+  background: rgba(0,0,0,0.72);
+  color: white;
 
-      display: none;
+  font-family: monospace;
+  font-size: 12px;
 
-      box-shadow:
-        0 0 0 2px rgba(0,0,0,0.3);
-    }
-  </style>
+  pointer-events: none;
+}
+
+#error {
+  position: fixed;
+  inset: 0;
+
+  z-index: 200;
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  padding: 30px;
+
+  background: #111;
+  color: white;
+
+  text-align: center;
+}
+
+#error > div {
+  max-width: 500px;
+}
+</style>
 </head>
 
 <body>
 
-  <!-- ====================================== -->
-  <!-- UI                                     -->
-  <!-- ====================================== -->
+<div id="start">
+  <div id="start-inner">
 
-  <div id="ui">
+    <h1>Wystawa AR</h1>
 
-    <div id="status">
-      Szukam markera HIRO...
-      <br>
-      Skieruj kamerę na wydrukowany marker.
-    </div>
+    <p>
+      Uruchom AR i skieruj kamerę na marker Hiro
+      wydrukowany na ścianie.
+      <br><br>
+      Po wykryciu markera wystawa zostanie
+      automatycznie ustawiona w przestrzeni.
+    </p>
 
-    <div id="markerIndicator"></div>
-
-    <button id="placeButton">
-      USTAW WYSTAWĘ
-    </button>
-
-    <button id="resetButton">
-      RESET
+    <button id="start-button">
+      URUCHOM AR
     </button>
 
   </div>
+</div>
 
 
-  <!-- ====================================== -->
-  <!-- SCENA AR                               -->
-  <!-- ====================================== -->
+<div id="status">
+  Szukam markera HIRO...
+</div>
 
-  <a-scene
 
-    embedded
+<div id="debug">
 
-    vr-mode-ui="enabled: false"
+  MARKER:
+  <span id="marker-state">NIE</span>
 
-    renderer="
-      antialias: true;
-      alpha: true;
-      colorManagement: true;
-    "
+  <br>
 
-    arjs="
-      sourceType: webcam;
-      debugUIEnabled: false;
-      detectionMode: mono;
-      trackingMethod: best;
-    "
-  >
+  KALIBRACJA:
+  <span id="calibration-state">NIE</span>
 
+  <br><br>
 
-    <!-- ==================================== -->
-    <!-- ŚWIATŁO                              -->
-    <!-- ==================================== -->
+  RUCH:
+  <span id="distance">0.00</span> m
 
-    <a-entity
-      light="
-        type: ambient;
-        intensity: 1.4;
-      "
-    ></a-entity>
+</div>
 
 
-    <a-entity
-      light="
-        type: directional;
-        intensity: 1.2;
-      "
-      position="2 4 2"
-    ></a-entity>
+<div id="error">
+  <div>
+    <h2>AR niedostępne</h2>
+    <p id="error-text"></p>
+  </div>
+</div>
 
 
 
-    <!-- ==================================== -->
-    <!-- MARKER HIRO                          -->
-    <!-- ==================================== -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
+  }
+}
+</script>
 
-    <a-marker
-      id="hiroMarker"
-      preset="hiro"
-      smooth="true"
-      smoothCount="10"
-      smoothTolerance="0.01"
-      smoothThreshold="5"
-    >
 
+<script type="module">
 
-      <!-- ================================== -->
-      <!-- WSKAŹNIK NA MARKERZE               -->
-      <!-- ================================== -->
+import * as THREE from "three";
 
-      <!--
-        Marker leży w płaszczyźnie XZ.
 
-        Jeśli HIRO jest na ścianie,
-        jego lokalny układ współrzędnych
-        obraca się razem z markerem.
-      -->
+/* ====================================================== */
+/* HTML                                                   */
+/* ====================================================== */
 
-      <a-ring
-        id="markerRing"
+const start =
+  document.getElementById("start");
 
-        position="0 0.03 0"
+const startButton =
+  document.getElementById("start-button");
 
-        rotation="-90 0 0"
+const status =
+  document.getElementById("status");
 
-        radius-inner="0.35"
-        radius-outer="0.42"
+const debug =
+  document.getElementById("debug");
 
-        material="
-          color: white;
-          shader: flat;
-        "
-      ></a-ring>
+const markerState =
+  document.getElementById("marker-state");
 
+const calibrationState =
+  document.getElementById("calibration-state");
 
-      <!-- ================================== -->
-      <!-- PUNKT CENTRALNY                    -->
-      <!-- ================================== -->
+const distanceText =
+  document.getElementById("distance");
 
-      <a-sphere
-        radius="0.08"
+const errorScreen =
+  document.getElementById("error");
 
-        position="0 0.05 0"
+const errorText =
+  document.getElementById("error-text");
 
-        material="
-          color: red;
-          shader: flat;
-        "
-      ></a-sphere>
 
 
-    </a-marker>
+/* ====================================================== */
+/* THREE                                                  */
+/* ====================================================== */
 
+const scene =
+  new THREE.Scene();
 
 
-    <!-- ==================================== -->
-    <!-- WYSTAWA                              -->
-    <!-- ==================================== -->
+const camera =
+  new THREE.PerspectiveCamera(
+    70,
+    window.innerWidth / window.innerHeight,
+    0.01,
+    100
+  );
 
-    <!--
-      UWAGA:
 
-      Wystawa NIE jest dzieckiem markera.
+const renderer =
+  new THREE.WebGLRenderer({
+    antialias: true,
+    alpha: true
+  });
 
-      Po kliknięciu skopiujemy world position
-      i world rotation markera.
 
-      Dzięki temu możemy potem próbować
-      zostawić ją w świecie niezależnie
-      od samego elementu <a-marker>.
-    -->
+renderer.setPixelRatio(
+  Math.min(window.devicePixelRatio, 2)
+);
 
-    <a-entity
-      id="exhibition"
-      visible="false"
-    >
 
+renderer.setSize(
+  window.innerWidth,
+  window.innerHeight
+);
 
-      <!-- ================================== -->
-      <!-- ORIGIN                             -->
-      <!-- ================================== -->
 
-      <a-sphere
+renderer.xr.enabled = true;
 
-        radius="0.05"
 
-        position="0 0 0"
+renderer.outputColorSpace =
+  THREE.SRGBColorSpace;
 
-        material="
-          color: white;
-          shader: flat;
-        "
 
-      ></a-sphere>
+renderer.toneMapping =
+  THREE.ACESFilmicToneMapping;
 
 
+renderer.toneMappingExposure =
+  1.2;
 
-      <!-- ================================== -->
-      <!-- CZERWONA RZEŹBA                    -->
-      <!-- ================================== -->
 
-      <a-box
+document.body.appendChild(
+  renderer.domElement
+);
 
-        position="0 -0.4 -1"
 
-        width="0.3"
-        height="0.8"
-        depth="0.3"
 
-        color="#ff3333"
+/* ====================================================== */
+/* ŚWIATŁO                                                */
+/* ====================================================== */
 
-      ></a-box>
+const hemisphere =
+  new THREE.HemisphereLight(
+    0xffffff,
+    0x444444,
+    3
+  );
 
 
+scene.add(
+  hemisphere
+);
 
-      <!-- ================================== -->
-      <!-- NIEBIESKA KULA                     -->
-      <!-- ================================== -->
 
-      <a-sphere
+const directional =
+  new THREE.DirectionalLight(
+    0xffffff,
+    3
+  );
 
-        position="-0.7 -0.3 -1.5"
 
-        radius="0.25"
+directional.position.set(
+  3,
+  5,
+  2
+);
 
-        color="#3388ff"
 
-      ></a-sphere>
+scene.add(
+  directional
+);
 
 
 
-      <!-- ================================== -->
-      <!-- ZIELONY SŁUP                       -->
-      <!-- ================================== -->
+/* ====================================================== */
+/* WYSTAWA                                                */
+/* ====================================================== */
 
-      <a-cylinder
+/*
+  Ten Group będzie ustawiony względem
+  fizycznego markera.
 
-        position="0.8 -0.5 -1.8"
+  Po pierwszej dobrej detekcji NIE będziemy
+  już aktualizować jego pozycji.
 
-        radius="0.18"
-        height="1"
+  To jest kluczowe.
 
-        color="#33dd77"
+  Marker = kalibracja.
 
-      ></a-cylinder>
+  WebXR = późniejszy tracking telefonu.
+*/
 
+const exhibition =
+  new THREE.Group();
 
 
-      <!-- ================================== -->
-      <!-- ŻÓŁTY TORUS                        -->
-      <!-- ================================== -->
+exhibition.visible = false;
 
-      <a-torus
 
-        position="-0.6 0 -2.3"
+scene.add(
+  exhibition
+);
 
-        radius="0.35"
-        radius-tubular="0.09"
 
-        rotation="0 0 0"
 
-        color="#ffcc22"
+/* ====================================================== */
+/* MATERIAŁ                                               */
+/* ====================================================== */
 
-      ></a-torus>
+function createMaterial(color) {
 
+  return new THREE.MeshStandardMaterial({
 
+    color: color,
 
-      <!-- ================================== -->
-      <!-- FIOLETOWY STOŻEK                   -->
-      <!-- ================================== -->
+    roughness: 0.45,
 
-      <a-cone
+    metalness: 0.08
 
-        position="0.7 -0.4 -2.6"
+  });
 
-        radius-bottom="0.35"
-        radius-top="0"
-        height="0.8"
+}
 
-        color="#cc44ff"
 
-      ></a-cone>
 
+/* ====================================================== */
+/* RZEŹBY                                                 */
+/* ====================================================== */
 
+/*
+  WAŻNE:
 
-      <!-- ================================== -->
-      <!-- TURKUSOWY BOX                      -->
-      <!-- ================================== -->
+  Lokalny układ współrzędnych wystawy:
 
-      <a-box
+             +Y
+              |
+              |
+              |
+              +------ +X
 
-        position="0 -0.3 -3.2"
+  Z oznacza głębokość.
 
-        width="0.7"
-        height="0.7"
-        depth="0.7"
 
-        rotation="0 45 0"
+  Ponieważ marker będzie wisiał NA ŚCIANIE,
+  później przesuniemy całą wystawę w dół,
+  żeby obiekty znalazły się przy podłodze.
+*/
 
-        color="#00dddd"
 
-      ></a-box>
+/* ---------- CZERWONA ---------- */
 
+const redBox =
+  new THREE.Mesh(
 
-    </a-entity>
+    new THREE.BoxGeometry(
+      0.35,
+      0.9,
+      0.35
+    ),
 
+    createMaterial(
+      0xff3333
+    )
 
+  );
 
-    <!-- ==================================== -->
-    <!-- KAMERA                               -->
-    <!-- ==================================== -->
 
-    <a-entity camera></a-entity>
+redBox.position.set(
+  0,
+  0.45,
+  -1.0
+);
 
 
-  </a-scene>
+exhibition.add(
+  redBox
+);
 
 
 
-<script>
+/* ---------- NIEBIESKA KULA ---------- */
 
-  /* ======================================== */
-  /* ELEMENTY                                */
-  /* ======================================== */
+const blueSphere =
+  new THREE.Mesh(
 
-  const marker =
-    document.querySelector("#hiroMarker");
+    new THREE.SphereGeometry(
+      0.28,
+      32,
+      32
+    ),
 
-  const exhibition =
-    document.querySelector("#exhibition");
+    createMaterial(
+      0x3388ff
+    )
 
-  const status =
-    document.querySelector("#status");
+  );
 
-  const placeButton =
-    document.querySelector("#placeButton");
 
-  const resetButton =
-    document.querySelector("#resetButton");
+blueSphere.position.set(
+  -0.8,
+  0.28,
+  -1.5
+);
 
-  const markerIndicator =
-    document.querySelector("#markerIndicator");
 
+exhibition.add(
+  blueSphere
+);
 
 
-  /* ======================================== */
-  /* STAN                                    */
-  /* ======================================== */
 
-  let markerVisible = false;
+/* ---------- ZIELONY SŁUP ---------- */
 
-  let exhibitionPlaced = false;
+const greenColumn =
+  new THREE.Mesh(
 
+    new THREE.CylinderGeometry(
+      0.2,
+      0.2,
+      1.3,
+      32
+    ),
 
+    createMaterial(
+      0x33dd77
+    )
 
-  /* ======================================== */
-  /* MARKER FOUND                            */
-  /* ======================================== */
+  );
 
-  marker.addEventListener(
-    "markerFound",
-    () => {
 
-      markerVisible = true;
+greenColumn.position.set(
+  0.9,
+  0.65,
+  -1.7
+);
 
 
-      markerIndicator.style.display =
-        "block";
+exhibition.add(
+  greenColumn
+);
 
 
-      if (!exhibitionPlaced) {
 
-        status.innerHTML =
-          "HIRO znaleziony ✓<br>" +
-          "Kliknij „USTAW WYSTAWĘ”.";
+/* ---------- ŻÓŁTY TORUS ---------- */
 
-        placeButton.style.display =
-          "block";
+const yellowTorus =
+  new THREE.Mesh(
 
-      }
+    new THREE.TorusGeometry(
+      0.35,
+      0.1,
+      20,
+      50
+    ),
 
-      else {
+    createMaterial(
+      0xffcc22
+    )
 
-        status.innerHTML =
-          "HIRO znaleziony ponownie.";
+  );
 
-      }
+
+yellowTorus.position.set(
+  -0.5,
+  0.65,
+  -2.3
+);
+
+
+yellowTorus.rotation.x =
+  Math.PI / 2;
+
+
+exhibition.add(
+  yellowTorus
+);
+
+
+
+/* ---------- FIOLETOWY STOŻEK ---------- */
+
+const purpleCone =
+  new THREE.Mesh(
+
+    new THREE.ConeGeometry(
+      0.35,
+      1.1,
+      32
+    ),
+
+    createMaterial(
+      0xcc44ff
+    )
+
+  );
+
+
+purpleCone.position.set(
+  0.7,
+  0.55,
+  -2.6
+);
+
+
+exhibition.add(
+  purpleCone
+);
+
+
+
+/* ---------- TURKUSOWY BOX ---------- */
+
+const cyanBox =
+  new THREE.Mesh(
+
+    new THREE.BoxGeometry(
+      0.7,
+      0.7,
+      0.7
+    ),
+
+    createMaterial(
+      0x00dddd
+    )
+
+  );
+
+
+cyanBox.position.set(
+  0,
+  0.35,
+  -3.3
+);
+
+
+cyanBox.rotation.y =
+  Math.PI / 4;
+
+
+exhibition.add(
+  cyanBox
+);
+
+
+
+/* ====================================================== */
+/* DEBUG MARKERA                                          */
+/* ====================================================== */
+
+/*
+  Ten kwadrat pokazuje pozycję,
+  w której WebXR zobaczył marker.
+
+  Pojawi się tylko podczas kalibracji.
+*/
+
+const markerDebug =
+  new THREE.Mesh(
+
+    new THREE.PlaneGeometry(
+      0.15,
+      0.15
+    ),
+
+    new THREE.MeshBasicMaterial({
+      color: 0xff00ff,
+      transparent: true,
+      opacity: 0.7,
+      side: THREE.DoubleSide
+    })
+
+  );
+
+
+markerDebug.visible = false;
+
+
+scene.add(
+  markerDebug
+);
+
+
+
+/* ====================================================== */
+/* WEBXR                                                  */
+/* ====================================================== */
+
+let session = null;
+
+let referenceSpace = null;
+
+
+/*
+  Czy wystawa została już skalibrowana.
+*/
+
+let calibrated = false;
+
+
+/*
+  Pozycja telefonu podczas kalibracji.
+*/
+
+const initialCameraPosition =
+  new THREE.Vector3();
+
+
+const currentCameraPosition =
+  new THREE.Vector3();
+
+
+
+/* ====================================================== */
+/* MARKER CONFIG                                           */
+/* ====================================================== */
+
+/*
+  Fizyczna szerokość wydrukowanego obrazka
+  HIRO.
+
+  ZMIERZ GO LINijką.
+
+  Jeżeli ma 15 cm:
+
+  0.15
+
+  Jeżeli ma 20 cm:
+
+  0.20
+*/
+
+const MARKER_WIDTH_METERS =
+  0.15;
+
+
+/*
+  Zakładamy, że środek markera znajduje się
+  około 1.50 m nad podłogą.
+
+  ZMIEŃ TO pod swoją instalację.
+*/
+
+const MARKER_HEIGHT_ABOVE_FLOOR =
+  1.50;
+
+
+
+/* ====================================================== */
+/* ŁADOWANIE HIRO.PNG                                     */
+/* ====================================================== */
+
+async function loadMarkerImage() {
+
+
+  const response =
+    await fetch(
+      "./hiro.png"
+    );
+
+
+  if (!response.ok) {
+
+    throw new Error(
+      "Nie znaleziono pliku hiro.png"
+    );
+
+  }
+
+
+  const blob =
+    await response.blob();
+
+
+  const bitmap =
+    await createImageBitmap(
+      blob
+    );
+
+
+  return bitmap;
+
+}
+
+
+
+/* ====================================================== */
+/* START AR                                               */
+/* ====================================================== */
+
+async function startAR() {
+
+
+  if (!navigator.xr) {
+
+    showError(
+      "Ta przeglądarka nie udostępnia WebXR."
+    );
+
+    return;
+
+  }
+
+
+  try {
+
+
+    status.innerHTML =
+      "Ładowanie markera...";
+
+
+    /*
+      Najpierw wczytujemy obraz referencyjny.
+    */
+
+    const markerBitmap =
+      await loadMarkerImage();
+
+
+
+    const supported =
+      await navigator.xr.isSessionSupported(
+        "immersive-ar"
+      );
+
+
+    if (!supported) {
+
+      showError(
+        "To urządzenie nie obsługuje immersive-ar."
+      );
+
+      return;
 
     }
+
+
+
+    /*
+      Najważniejsza część.
+
+      Prosimy WebXR o image-tracking.
+    */
+
+    session =
+      await navigator.xr.requestSession(
+
+        "immersive-ar",
+
+        {
+
+          requiredFeatures: [
+            "image-tracking"
+          ],
+
+          optionalFeatures: [
+            "local-floor",
+            "dom-overlay"
+          ],
+
+          trackedImages: [
+
+            {
+
+              image:
+                markerBitmap,
+
+              widthInMeters:
+                MARKER_WIDTH_METERS
+
+            }
+
+          ],
+
+          domOverlay: {
+            root: document.body
+          }
+
+        }
+
+      );
+
+
+
+    /*
+      Zostawiamy LOCAL, ponieważ właśnie
+      w tym reference space działał nam
+      prawidłowo tracking 6DoF.
+    */
+
+    renderer.xr.setReferenceSpaceType(
+      "local"
+    );
+
+
+    await renderer.xr.setSession(
+      session
+    );
+
+
+    referenceSpace =
+      renderer.xr.getReferenceSpace();
+
+
+
+    session.addEventListener(
+      "end",
+      endSession
+    );
+
+
+
+    start.style.display =
+      "none";
+
+
+    status.style.display =
+      "block";
+
+
+    debug.style.display =
+      "block";
+
+
+    status.innerHTML =
+
+      "Szukam markera HIRO...<br>" +
+      "Skieruj kamerę na marker.";
+
+
+    renderer.setAnimationLoop(
+      render
+    );
+
+
+  }
+
+  catch(error) {
+
+
+    console.error(error);
+
+
+    /*
+      To może się pojawić np. wtedy,
+      gdy przeglądarka obsługuje immersive-ar,
+      ale NIE obsługuje image-tracking.
+    */
+
+    showError(
+
+      "Nie udało się uruchomić śledzenia markera.\n\n" +
+
+      "Jeżeli zwykły test WebXR działał, " +
+      "ale ten nie startuje, urządzenie lub przeglądarka " +
+      "może nie udostępniać funkcji WebXR image-tracking."
+
+    );
+
+  }
+
+}
+
+
+
+/* ====================================================== */
+/* KALIBRACJA                                             */
+/* ====================================================== */
+
+function calibrateFromMarker(
+  imagePose
+) {
+
+
+  if (calibrated) {
+
+    return;
+
+  }
+
+
+  /*
+    Transformacja wykrytego obrazu
+    względem naszego LOCAL reference space.
+  */
+
+  const markerMatrix =
+    new THREE.Matrix4();
+
+
+  markerMatrix.fromArray(
+    imagePose.transform.matrix
   );
 
 
 
-  /* ======================================== */
-  /* MARKER LOST                             */
-  /* ======================================== */
+  /*
+    Rozbijamy matrix na:
 
-  marker.addEventListener(
-    "markerLost",
-    () => {
+    position
+    rotation
+    scale
+  */
 
-      markerVisible = false;
-
-
-      markerIndicator.style.display =
-        "none";
+  const markerPosition =
+    new THREE.Vector3();
 
 
-      placeButton.style.display =
-        "none";
+  const markerQuaternion =
+    new THREE.Quaternion();
 
 
-      if (!exhibitionPlaced) {
+  const markerScale =
+    new THREE.Vector3();
 
-        status.innerHTML =
-          "Marker zniknął.<br>" +
-          "Skieruj kamerę ponownie na HIRO.";
 
-      }
+  markerMatrix.decompose(
 
-      else {
+    markerPosition,
 
-        status.innerHTML =
-          "Wystawa ustawiona.<br>" +
-          "Marker nie jest teraz widoczny.";
+    markerQuaternion,
 
-      }
+    markerScale
 
-    }
   );
 
 
 
-  /* ======================================== */
-  /* USTAW WYSTAWĘ                           */
-  /* ======================================== */
+  /* ==================================================== */
+  /* DEBUG MARKERA                                        */
+  /* ==================================================== */
 
-  placeButton.addEventListener(
-    "click",
+  markerDebug.position.copy(
+    markerPosition
+  );
+
+
+  markerDebug.quaternion.copy(
+    markerQuaternion
+  );
+
+
+  markerDebug.visible =
+    true;
+
+
+
+  /* ==================================================== */
+  /* ORIGIN WYSTAWY                                       */
+  /* ==================================================== */
+
+  /*
+    Na początku kopiujemy dokładnie
+    pozycję i orientację markera.
+  */
+
+  exhibition.position.copy(
+    markerPosition
+  );
+
+
+  exhibition.quaternion.copy(
+    markerQuaternion
+  );
+
+
+
+  /*
+    Marker jest pionowo na ścianie.
+
+    Nasze obiekty mają jednak stać
+    względem podłogi.
+
+    Dlatego wygodniej zachować pozycję
+    markera, ale użyć tylko jego orientacji
+    wokół osi pionowej.
+
+    Wyciągamy kierunek "normalnej"
+    markera.
+  */
+
+  const normal =
+    new THREE.Vector3(
+      0,
+      0,
+      1
+    );
+
+
+  normal.applyQuaternion(
+    markerQuaternion
+  );
+
+
+  /*
+    Ignorujemy nachylenie góra/dół.
+  */
+
+  normal.y = 0;
+
+
+  if (
+    normal.lengthSq() > 0.0001
+  ) {
+
+    normal.normalize();
+
+  }
+
+
+  /*
+    Kąt ściany.
+  */
+
+  const yaw =
+    Math.atan2(
+      normal.x,
+      normal.z
+    );
+
+
+  exhibition.rotation.set(
+    0,
+    yaw,
+    0
+  );
+
+
+
+  /* ==================================================== */
+  /* PODŁOGA                                              */
+  /* ==================================================== */
+
+  /*
+    Marker jest np. 1.50 m nad podłogą.
+
+    Przesuwamy więc origin wystawy
+    dokładnie o tę wartość w dół.
+  */
+
+  exhibition.position.y -=
+    MARKER_HEIGHT_ABOVE_FLOOR;
+
+
+
+  /* ==================================================== */
+  /* ODSUNIĘCIE OD ŚCIANY                                 */
+  /* ==================================================== */
+
+  /*
+    Chcemy, żeby pierwsze obiekty
+    nie znajdowały się wewnątrz ściany.
+
+    Przesuwamy origin wystawy np.
+    30 cm od ściany.
+
+    Jeżeli wystawa pojawi się po ZŁEJ
+    stronie ściany:
+
+        zmień 0.30 na -0.30
+  */
+
+  const wallOffset =
+    normal.clone().multiplyScalar(
+      0.30
+    );
+
+
+  exhibition.position.add(
+    wallOffset
+  );
+
+
+
+  /* ==================================================== */
+  /* GOTOWE                                               */
+  /* ==================================================== */
+
+  exhibition.visible =
+    true;
+
+
+  calibrated =
+    true;
+
+
+  calibrationState.textContent =
+    "TAK";
+
+
+  /*
+    Zapisujemy pozycję telefonu
+    do debugowania.
+  */
+
+  const xrCamera =
+    renderer.xr.getCamera(
+      camera
+    );
+
+
+  xrCamera.getWorldPosition(
+    initialCameraPosition
+  );
+
+
+
+  status.innerHTML =
+
+    "✓ WYSTAWA SKALIBROWANA<br>" +
+    "Marker nie musi już być widoczny.";
+
+
+
+  /*
+    Po chwili chowamy różowy debug markera.
+  */
+
+  setTimeout(
     () => {
+
+      markerDebug.visible =
+        false;
+
+    },
+    1500
+  );
+
+}
+
+
+
+/* ====================================================== */
+/* RENDER                                                 */
+/* ====================================================== */
+
+function render(
+  timestamp,
+  frame
+) {
+
+
+  if (
+    frame &&
+    referenceSpace
+  ) {
+
+
+    /* ================================================== */
+    /* IMAGE TRACKING                                     */
+    /* ================================================== */
+
+    if (!calibrated) {
+
+
+      /*
+        Pobieramy wyniki śledzenia obrazów.
+      */
+
+      const results =
+        frame.getImageTrackingResults();
+
+
+      let markerVisible =
+        false;
+
+
+
+      for (
+        const result of results
+      ) {
+
+
+        /*
+          Mamy tylko jeden trackedImage,
+          więc index powinien wynosić 0.
+        */
+
+        if (
+          result.index !== 0
+        ) {
+
+          continue;
+
+        }
+
+
+
+        /*
+          trackingState może być np.
+
+          "tracked"
+          "emulated"
+        */
+
+        if (
+          result.trackingState === "tracked"
+        ) {
+
+
+          const pose =
+            frame.getPose(
+
+              result.imageSpace,
+
+              referenceSpace
+
+            );
+
+
+          if (pose) {
+
+
+            markerVisible =
+              true;
+
+
+            markerState.textContent =
+              "TAK";
+
+
+            /*
+              Pierwsza dobra detekcja
+              = kalibracja wystawy.
+            */
+
+            calibrateFromMarker(
+              pose
+            );
+
+
+            break;
+
+          }
+
+        }
+
+      }
+
 
 
       if (!markerVisible) {
 
-        return;
 
-      }
+        markerState.textContent =
+          "NIE";
 
-
-      if (exhibitionPlaced) {
-
-        return;
-
-      }
-
-
-
-      /* ==================================== */
-      /* THREE.JS OBJECTS                     */
-      /* ==================================== */
-
-      const markerObject =
-        marker.object3D;
-
-
-      const exhibitionObject =
-        exhibition.object3D;
-
-
-
-      /* ==================================== */
-      /* WORLD POSITION                       */
-      /* ==================================== */
-
-      /*
-        Pobieramy pozycję HIRO
-        w przestrzeni sceny.
-      */
-
-      const worldPosition =
-        new THREE.Vector3();
-
-
-      markerObject.getWorldPosition(
-        worldPosition
-      );
-
-
-
-      /* ==================================== */
-      /* WORLD ROTATION                       */
-      /* ==================================== */
-
-      /*
-        Pobieramy orientację HIRO.
-
-        To jest bardzo ważne,
-        bo marker jest na ŚCIANIE.
-      */
-
-      const worldQuaternion =
-        new THREE.Quaternion();
-
-
-      markerObject.getWorldQuaternion(
-        worldQuaternion
-      );
-
-
-
-      /* ==================================== */
-      /* WORLD SCALE                          */
-      /* ==================================== */
-
-      const worldScale =
-        new THREE.Vector3();
-
-
-      markerObject.getWorldScale(
-        worldScale
-      );
-
-
-
-      /* ==================================== */
-      /* KOPIUJEMY TRANSFORM                  */
-      /* ==================================== */
-
-      exhibitionObject.position.copy(
-        worldPosition
-      );
-
-
-      exhibitionObject.quaternion.copy(
-        worldQuaternion
-      );
-
-
-      /*
-        NIE kopiujemy skali markera.
-
-        Chcemy kontrolować skalę
-        wystawy sami.
-      */
-
-      exhibitionObject.scale.set(
-        1,
-        1,
-        1
-      );
-
-
-      exhibitionObject.visible =
-        true;
-
-
-      exhibitionPlaced =
-        true;
-
-
-
-      /* ==================================== */
-      /* UI                                   */
-      /* ==================================== */
-
-      placeButton.style.display =
-        "none";
-
-
-      resetButton.style.display =
-        "block";
-
-
-      status.innerHTML =
-        "Wystawa ustawiona ✓<br>" +
-        "Możesz odejść od markera.";
-
-    }
-  );
-
-
-
-  /* ======================================== */
-  /* RESET                                   */
-  /* ======================================== */
-
-  resetButton.addEventListener(
-    "click",
-    () => {
-
-
-      exhibitionPlaced =
-        false;
-
-
-      exhibition.object3D.visible =
-        false;
-
-
-      resetButton.style.display =
-        "none";
-
-
-      if (markerVisible) {
 
         status.innerHTML =
-          "HIRO znaleziony ✓<br>" +
-          "Kliknij „USTAW WYSTAWĘ”.";
 
-
-        placeButton.style.display =
-          "block";
-
-      }
-
-      else {
-
-        status.innerHTML =
           "Szukam markera HIRO...<br>" +
-          "Skieruj kamerę na wydrukowany marker.";
+          "Podejdź bliżej i trzymaj telefon stabilnie.";
 
       }
 
     }
+
+
+
+    /* ================================================== */
+    /* 6DoF PO KALIBRACJI                                 */
+    /* ================================================== */
+
+    if (calibrated) {
+
+
+      /*
+        Tu NIE aktualizujemy exhibition.position.
+
+        To jest bardzo ważne.
+
+        Wystawa dostała transformację
+        tylko podczas kalibracji.
+
+        Od teraz jej transformacja pozostaje
+        nieruchoma w LOCAL reference space.
+      */
+
+
+      const viewerPose =
+        frame.getViewerPose(
+          referenceSpace
+        );
+
+
+      if (viewerPose) {
+
+
+        currentCameraPosition.set(
+
+          viewerPose.transform.position.x,
+
+          viewerPose.transform.position.y,
+
+          viewerPose.transform.position.z
+
+        );
+
+
+        const distance =
+          currentCameraPosition.distanceTo(
+            initialCameraPosition
+          );
+
+
+        distanceText.textContent =
+          distance.toFixed(2);
+
+      }
+
+    }
+
+  }
+
+
+
+  renderer.render(
+    scene,
+    camera
   );
+
+}
+
+
+
+/* ====================================================== */
+/* END                                                    */
+/* ====================================================== */
+
+function endSession() {
+
+
+  session =
+    null;
+
+
+  referenceSpace =
+    null;
+
+
+  calibrated =
+    false;
+
+
+  exhibition.visible =
+    false;
+
+
+  markerDebug.visible =
+    false;
+
+
+  markerState.textContent =
+    "NIE";
+
+
+  calibrationState.textContent =
+    "NIE";
+
+
+  distanceText.textContent =
+    "0.00";
+
+
+  renderer.setAnimationLoop(
+    null
+  );
+
+
+  status.style.display =
+    "none";
+
+
+  debug.style.display =
+    "none";
+
+
+  start.style.display =
+    "flex";
+
+}
+
+
+
+/* ====================================================== */
+/* ERROR                                                  */
+/* ====================================================== */
+
+function showError(message) {
+
+
+  start.style.display =
+    "none";
+
+
+  errorScreen.style.display =
+    "flex";
+
+
+  errorText.innerText =
+    message;
+
+}
+
+
+
+/* ====================================================== */
+/* RESIZE                                                 */
+/* ====================================================== */
+
+window.addEventListener(
+
+  "resize",
+
+  () => {
+
+
+    camera.aspect =
+      window.innerWidth /
+      window.innerHeight;
+
+
+    camera.updateProjectionMatrix();
+
+
+    renderer.setSize(
+      window.innerWidth,
+      window.innerHeight
+    );
+
+  }
+
+);
+
+
+
+/* ====================================================== */
+/* BUTTON                                                 */
+/* ====================================================== */
+
+startButton.addEventListener(
+  "click",
+  startAR
+);
 
 </script>
 
-
 </body>
 </html>
-```
 
