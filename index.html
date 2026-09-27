@@ -198,9 +198,11 @@ canvas {
     <p>
       Skieruj telefon na podłogę.
       <br><br>
+
       Kiedy pojawi się białe kółko,
       dotknij ekranu.
       <br><br>
+
       Punkt można ustawić tylko raz.
     </p>
 
@@ -316,6 +318,162 @@ const errorText =
 
 
 /* ========================================= */
+/*                                           */
+/* KONFIGURACJA RZEŹB                        */
+/*                                           */
+/* TUTAJ ZMIENIASZ POZYCJE, SKALE I OBRÓT   */
+/*                                           */
+/* ========================================= */
+
+/*
+
+  POSITION:
+
+  x = lewo / prawo
+  y = góra / dół
+  z = przód / tył
+
+  Jednostki pozycji = metry.
+
+
+  SCALE:
+
+  1    = 100%
+  0.5  = 50%
+  0.1  = 10%
+  2    = 200%
+
+
+  ROTATION:
+
+  podajesz normalnie w stopniach.
+
+  y: 90 = obrót o 90 stopni.
+
+*/
+
+
+const models = [
+
+
+  /* ======================================= */
+  /* RZEŹBA 1                                */
+  /* ======================================= */
+
+  {
+
+    url:
+      "https://cdn.tinyglb.com/models/7f210788d6204cf09324b3655d9bead3.glb",
+
+
+    position: {
+
+      x: 0,
+
+      y: 0,
+
+      z: 0
+
+    },
+
+
+    scale: 1,
+
+
+    rotation: {
+
+      x: 0,
+
+      y: 0,
+
+      z: 0
+
+    }
+
+  },
+
+
+
+  /* ======================================= */
+  /* RZEŹBA 2                                */
+  /* ======================================= */
+
+  {
+
+    url:
+      "https://cdn.tinyglb.com/models/778255d1a4ea48e8b0d28b870625a541.glb",
+
+
+    position: {
+
+      x: 0,
+
+      y: 0,
+
+      z: 0
+
+    },
+
+
+    scale: 1,
+
+
+    rotation: {
+
+      x: 0,
+
+      y: 0,
+
+      z: 0
+
+    }
+
+  },
+
+
+
+  /* ======================================= */
+  /* RZEŹBA 3                                */
+  /* ======================================= */
+
+  {
+
+    url:
+      "https://cdn.tinyglb.com/models/2421e7d6e984447c9a70bcf0ebaaebbe.glb",
+
+
+    position: {
+
+      x: 0,
+
+      y: 0,
+
+      z: 0
+
+    },
+
+
+    scale: 1,
+
+
+    rotation: {
+
+      x: 0,
+
+      y: 0,
+
+      z: 0
+
+    }
+
+  }
+
+
+];
+
+
+
+/* ========================================= */
 /* SCENA                                     */
 /* ========================================= */
 
@@ -339,26 +497,38 @@ const camera =
 
 const renderer =
   new THREE.WebGLRenderer({
+
     antialias: true,
+
     alpha: true
+
   });
 
 
 renderer.setPixelRatio(
+
   Math.min(
+
     window.devicePixelRatio,
+
     2
+
   )
+
 );
 
 
 renderer.setSize(
+
   window.innerWidth,
+
   window.innerHeight
+
 );
 
 
-renderer.xr.enabled = true;
+renderer.xr.enabled =
+  true;
 
 
 renderer.outputColorSpace =
@@ -374,7 +544,9 @@ renderer.toneMappingExposure =
 
 
 document.body.appendChild(
+
   renderer.domElement
+
 );
 
 
@@ -385,34 +557,49 @@ document.body.appendChild(
 
 const hemisphere =
   new THREE.HemisphereLight(
+
     0xffffff,
+
     0x444444,
+
     3
+
   );
 
 
 scene.add(
+
   hemisphere
+
 );
 
 
 
 const sun =
   new THREE.DirectionalLight(
+
     0xffffff,
+
     3
+
   );
 
 
 sun.position.set(
+
   2,
+
   5,
+
   3
+
 );
 
 
 scene.add(
+
   sun
+
 );
 
 
@@ -423,37 +610,53 @@ scene.add(
 
 const reticleGeometry =
   new THREE.RingGeometry(
+
     0.08,
+
     0.11,
+
     40
+
   );
 
 
 reticleGeometry.rotateX(
+
   -Math.PI / 2
+
 );
 
 
 const reticleMaterial =
   new THREE.MeshBasicMaterial({
+
     color: 0xffffff
+
   });
 
 
 const reticle =
   new THREE.Mesh(
+
     reticleGeometry,
+
     reticleMaterial
+
   );
 
 
-reticle.matrixAutoUpdate = false;
+reticle.matrixAutoUpdate =
+  false;
 
-reticle.visible = false;
+
+reticle.visible =
+  false;
 
 
 scene.add(
+
   reticle
+
 );
 
 
@@ -462,15 +665,27 @@ scene.add(
 /* WYSTAWA                                   */
 /* ========================================= */
 
+/*
+
+  exhibition jest punktem zero całej wystawy.
+
+  Każdy model ma position względem
+  TEGO punktu.
+
+*/
+
 const exhibition =
   new THREE.Group();
 
 
-exhibition.visible = false;
+exhibition.visible =
+  false;
 
 
 scene.add(
+
   exhibition
+
 );
 
 
@@ -483,46 +698,32 @@ const loader =
   new GLTFLoader();
 
 
-let loadedModels = 0;
-
-
-/*
-  Wszystkie modele mają obecnie:
-
-  X = 0
-  Y = 0
-  Z = 0
-
-  Czyli dokładnie punkt zero wystawy.
-*/
-
-
-const modelURLs = [
-
-  "https://cdn.tinyglb.com/models/7f210788d6204cf09324b3655d9bead3.glb",
-
-  "https://cdn.tinyglb.com/models/778255d1a4ea48e8b0d28b870625a541.glb",
-
-  "https://cdn.tinyglb.com/models/2421e7d6e984447c9a70bcf0ebaaebbe.glb"
-
-];
+let loadedModels =
+  0;
 
 
 
 /* ========================================= */
-/* WCZYTYWANIE MODELU                        */
+/* WCZYTAJ JEDEN MODEL                       */
 /* ========================================= */
 
 async function loadModel(
-  url,
+
+  config,
+
   number
+
 ) {
+
 
   try {
 
+
     const gltf =
       await loader.loadAsync(
-        url
+
+        config.url
+
       );
 
 
@@ -536,9 +737,13 @@ async function loadModel(
     /* ===================================== */
 
     model.position.set(
-      0,
-      0,
-      0
+
+      config.position.x,
+
+      config.position.y,
+
+      config.position.z
+
     );
 
 
@@ -547,18 +752,10 @@ async function loadModel(
     /* SKALA                                 */
     /* ===================================== */
 
-    /*
-      Na razie NIE zmieniamy skali GLB.
+    model.scale.setScalar(
 
-      1 jednostka modelu = 1 metr,
-      jeśli model został poprawnie
-      wyeksportowany.
-    */
+      config.scale
 
-    model.scale.set(
-      1,
-      1,
-      1
     );
 
 
@@ -568,29 +765,58 @@ async function loadModel(
     /* ===================================== */
 
     model.rotation.set(
-      0,
-      0,
-      0
+
+
+      THREE.MathUtils.degToRad(
+
+        config.rotation.x
+
+      ),
+
+
+      THREE.MathUtils.degToRad(
+
+        config.rotation.y
+
+      ),
+
+
+      THREE.MathUtils.degToRad(
+
+        config.rotation.z
+
+      )
+
+
     );
 
 
 
     /* ===================================== */
-    /* SHADOW SETTINGS                       */
+    /* MESH                                  */
     /* ===================================== */
 
     model.traverse(
+
       (child) => {
+
 
         if (child.isMesh) {
 
-          child.castShadow = true;
 
-          child.receiveShadow = true;
+          child.castShadow =
+            true;
+
+
+          child.receiveShadow =
+            true;
+
 
         }
 
+
       }
+
     );
 
 
@@ -600,7 +826,9 @@ async function loadModel(
     /* ===================================== */
 
     exhibition.add(
+
       model
+
     );
 
 
@@ -609,60 +837,81 @@ async function loadModel(
 
 
     modelStatus.innerHTML =
+
       "MODELE: " +
+
       loadedModels +
-      " / 3";
+
+      " / " +
+
+      models.length;
+
 
 
     console.log(
+
       "Model " +
+
       number +
-      " załadowany:",
+
+      " załadowany",
+
       model
+
     );
 
 
   }
 
+
   catch(error) {
 
+
     console.error(
+
       "Błąd modelu " +
-      number +
-      ":",
+
+      number,
+
       error
+
     );
 
 
     modelStatus.innerHTML =
+
       "BŁĄD MODELU " +
+
       number;
 
+
   }
+
 
 }
 
 
 
 /* ========================================= */
-/* ŁADUJEMY 3 MODELE                         */
+/* WCZYTAJ WSZYSTKIE MODELE                  */
 /* ========================================= */
 
-loadModel(
-  modelURLs[0],
-  1
-);
+models.forEach(
+
+  (config, index) => {
 
 
-loadModel(
-  modelURLs[1],
-  2
-);
+    loadModel(
+
+      config,
+
+      index + 1
+
+    );
 
 
-loadModel(
-  modelURLs[2],
-  3
+  }
+
 );
 
 
@@ -671,16 +920,29 @@ loadModel(
 /* PUNKT ZERO                                */
 /* ========================================= */
 
+/*
+
+  Białe małe kółko pokazuje fizyczny
+  punkt zero całej wystawy.
+
+*/
+
 const originGeometry =
   new THREE.RingGeometry(
+
     0.15,
+
     0.18,
+
     40
+
   );
 
 
 originGeometry.rotateX(
+
   -Math.PI / 2
+
 );
 
 
@@ -690,7 +952,9 @@ const origin =
     originGeometry,
 
     new THREE.MeshBasicMaterial({
+
       color: 0xffffff
+
     })
 
   );
@@ -701,7 +965,9 @@ origin.position.y =
 
 
 exhibition.add(
+
   origin
+
 );
 
 
@@ -710,15 +976,24 @@ exhibition.add(
 /* WEBXR                                     */
 /* ========================================= */
 
-let session = null;
+let session =
+  null;
 
-let referenceSpace = null;
 
-let viewerSpace = null;
+let referenceSpace =
+  null;
 
-let hitTestSource = null;
 
-let exhibitionPlaced = false;
+let viewerSpace =
+  null;
+
+
+let hitTestSource =
+  null;
+
+
+let exhibitionPlaced =
+  false;
 
 
 
@@ -740,7 +1015,7 @@ let initialPositionSaved =
 
 
 /* ========================================= */
-/* START                                     */
+/* START AR                                  */
 /* ========================================= */
 
 async function startAR() {
@@ -748,13 +1023,19 @@ async function startAR() {
 
   if (!navigator.xr) {
 
+
     showError(
+
       "Ta przeglądarka nie obsługuje WebXR."
+
     );
+
 
     return;
 
+
   }
+
 
 
   try {
@@ -762,17 +1043,25 @@ async function startAR() {
 
     const supported =
       await navigator.xr.isSessionSupported(
+
         "immersive-ar"
+
       );
+
 
 
     if (!supported) {
 
+
       showError(
+
         "To urządzenie nie obsługuje immersive-ar."
+
       );
 
+
       return;
+
 
     }
 
@@ -781,36 +1070,59 @@ async function startAR() {
     session =
       await navigator.xr.requestSession(
 
+
         "immersive-ar",
+
 
         {
 
+
           requiredFeatures: [
+
             "hit-test"
+
           ],
+
 
           optionalFeatures: [
+
             "local-floor",
+
             "dom-overlay"
+
           ],
 
+
           domOverlay: {
-            root: document.body
+
+            root:
+              document.body
+
           }
 
+
         }
+
 
       );
 
 
 
+    /* ===================================== */
+    /* REFERENCE SPACE                       */
+    /* ===================================== */
+
     renderer.xr.setReferenceSpaceType(
+
       "local"
+
     );
 
 
     await renderer.xr.setSession(
+
       session
+
     );
 
 
@@ -818,33 +1130,60 @@ async function startAR() {
       renderer.xr.getReferenceSpace();
 
 
+
+    /* ===================================== */
+    /* VIEWER SPACE                          */
+    /* ===================================== */
+
     viewerSpace =
       await session.requestReferenceSpace(
+
         "viewer"
+
       );
 
+
+
+    /* ===================================== */
+    /* HIT TEST                              */
+    /* ===================================== */
 
     hitTestSource =
       await session.requestHitTestSource({
 
-        space: viewerSpace
+        space:
+          viewerSpace
 
       });
 
 
 
+    /* ===================================== */
+    /* EVENTS                                */
+    /* ===================================== */
+
     session.addEventListener(
+
       "select",
+
       placeExhibition
+
     );
 
 
     session.addEventListener(
+
       "end",
+
       endSession
+
     );
 
 
+
+    /* ===================================== */
+    /* UI                                    */
+    /* ===================================== */
 
     start.style.display =
       "none";
@@ -858,17 +1197,29 @@ async function startAR() {
       "block";
 
 
+
+    /* ===================================== */
+    /* RENDER LOOP                           */
+    /* ===================================== */
+
     renderer.setAnimationLoop(
+
       render
+
     );
 
 
   }
 
+
   catch(error) {
 
 
-    console.error(error);
+    console.error(
+
+      error
+
+    );
 
 
     showError(
@@ -878,7 +1229,9 @@ async function startAR() {
 
     );
 
+
   }
+
 
 }
 
@@ -891,12 +1244,21 @@ async function startAR() {
 function placeExhibition() {
 
 
+  /* ======================================= */
+  /* BRAK PODŁOGI                            */
+  /* ======================================= */
+
   if (!reticle.visible) {
 
     return;
 
   }
 
+
+
+  /* ======================================= */
+  /* JUŻ USTAWIONA                           */
+  /* ======================================= */
 
   if (exhibitionPlaced) {
 
@@ -907,7 +1269,7 @@ function placeExhibition() {
 
 
   /* ======================================= */
-  /* POZYCJA HIT TESTU                       */
+  /* POZYCJA                                 */
   /* ======================================= */
 
   const hitPosition =
@@ -915,12 +1277,16 @@ function placeExhibition() {
 
 
   hitPosition.setFromMatrixPosition(
+
     reticle.matrix
+
   );
 
 
   exhibition.position.copy(
+
     hitPosition
+
   );
 
 
@@ -931,7 +1297,9 @@ function placeExhibition() {
 
   const xrCamera =
     renderer.xr.getCamera(
+
       camera
+
     );
 
 
@@ -940,36 +1308,50 @@ function placeExhibition() {
 
 
   xrCamera.getWorldDirection(
+
     direction
+
   );
 
 
-  direction.y = 0;
+  direction.y =
+    0;
+
 
 
   if (
+
     direction.lengthSq() > 0
+
   ) {
+
 
     direction.normalize();
 
 
     const angle =
       Math.atan2(
+
         direction.x,
+
         direction.z
+
       );
 
 
     exhibition.rotation.y =
-      angle + Math.PI;
+
+      angle +
+
+      Math.PI;
+
 
   }
 
 
 
   /* ======================================= */
-  /* POKAŻ WYSTAWĘ                           */
+  /* POKAŻ                                   */
   /* ======================================= */
 
   exhibition.visible =
@@ -986,51 +1368,66 @@ function placeExhibition() {
 
 
   /* ======================================= */
-  /* BLOKADA KOLEJNEGO KLIKNIĘCIA            */
+  /* BLOKADA KOLEJNYCH TAPNIĘĆ               */
   /* ======================================= */
 
   if (session) {
 
+
     session.removeEventListener(
+
       "select",
+
       placeExhibition
+
     );
+
 
   }
 
 
 
   /* ======================================= */
-  /* ZAPIS POZYCJI TELEFONU                  */
+  /* POZYCJA TELEFONU                        */
   /* ======================================= */
-
-  /*
-    Pobieramy pozycję w dokładnie tym samym
-    referenceSpace, którego później używamy
-    do mierzenia ruchu.
-  */
 
   const frame =
     renderer.xr.getFrame();
 
 
-  if (frame && referenceSpace) {
+
+  if (
+
+    frame &&
+
+    referenceSpace
+
+  ) {
+
 
     const viewerPose =
       frame.getViewerPose(
+
         referenceSpace
+
       );
+
 
 
     if (viewerPose) {
 
+
       initialCameraPosition.set(
+
 
         viewerPose.transform.position.x,
 
+
         viewerPose.transform.position.y,
 
+
         viewerPose.transform.position.z
+
 
       );
 
@@ -1038,7 +1435,9 @@ function placeExhibition() {
       initialPositionSaved =
         true;
 
+
     }
+
 
   }
 
@@ -1047,7 +1446,8 @@ function placeExhibition() {
   instruction.innerHTML =
 
     "Wystawa ustawiona.<br>" +
-    "3 modele znajdują się w punkcie zero.";
+    "Możesz chodzić wokół rzeźb.";
+
 
 }
 
@@ -1058,8 +1458,11 @@ function placeExhibition() {
 /* ========================================= */
 
 function render(
+
   timestamp,
+
   frame
+
 ) {
 
 
@@ -1070,8 +1473,11 @@ function render(
   if (
 
     frame &&
+
     hitTestSource &&
+
     referenceSpace &&
+
     !exhibitionPlaced
 
   ) {
@@ -1079,12 +1485,17 @@ function render(
 
     const results =
       frame.getHitTestResults(
+
         hitTestSource
+
       );
 
 
+
     if (
+
       results.length > 0
+
     ) {
 
 
@@ -1094,8 +1505,11 @@ function render(
 
       const pose =
         hit.getPose(
+
           referenceSpace
+
         );
+
 
 
       if (pose) {
@@ -1106,16 +1520,21 @@ function render(
 
 
         reticle.matrix.fromArray(
+
           pose.transform.matrix
+
         );
 
 
         instruction.innerHTML =
 
           "Podłoga wykryta.<br>" +
+
           "Dotknij ekranu, aby ustawić wystawę.";
 
+
       }
+
 
     }
 
@@ -1130,9 +1549,12 @@ function render(
       instruction.innerHTML =
 
         "Szukam podłogi...<br>" +
+
         "Poruszaj telefonem powoli.";
 
+
     }
+
 
   }
 
@@ -1145,7 +1567,9 @@ function render(
   if (
 
     frame &&
+
     referenceSpace &&
+
     initialPositionSaved
 
   ) {
@@ -1153,8 +1577,11 @@ function render(
 
     const viewerPose =
       frame.getViewerPose(
+
         referenceSpace
+
       );
+
 
 
     if (viewerPose) {
@@ -1162,41 +1589,59 @@ function render(
 
       currentCameraPosition.set(
 
+
         viewerPose.transform.position.x,
+
 
         viewerPose.transform.position.y,
 
+
         viewerPose.transform.position.z
+
 
       );
 
 
+
       const distance =
         currentCameraPosition.distanceTo(
+
           initialCameraPosition
+
         );
+
 
 
       distanceText.textContent =
         distance.toFixed(2);
 
+
     }
+
 
   }
 
 
 
+  /* ======================================= */
+  /* RENDER                                  */
+  /* ======================================= */
+
   renderer.render(
+
     scene,
+
     camera
+
   );
+
 
 }
 
 
 
 /* ========================================= */
-/* END                                       */
+/* END SESSION                               */
 /* ========================================= */
 
 function endSession() {
@@ -1239,7 +1684,9 @@ function endSession() {
 
 
   renderer.setAnimationLoop(
+
     null
+
   );
 
 
@@ -1253,6 +1700,7 @@ function endSession() {
 
   start.style.display =
     "flex";
+
 
 }
 
@@ -1276,6 +1724,7 @@ function showError(message) {
   errorText.textContent =
     message;
 
+
 }
 
 
@@ -1292,7 +1741,9 @@ window.addEventListener(
 
 
     camera.aspect =
+
       window.innerWidth /
+
       window.innerHeight;
 
 
@@ -1300,9 +1751,13 @@ window.addEventListener(
 
 
     renderer.setSize(
+
       window.innerWidth,
+
       window.innerHeight
+
     );
+
 
   }
 
@@ -1311,12 +1766,15 @@ window.addEventListener(
 
 
 /* ========================================= */
-/* BUTTON                                    */
+/* START BUTTON                              */
 /* ========================================= */
 
 startButton.addEventListener(
+
   "click",
+
   startAR
+
 );
 
 </script>
