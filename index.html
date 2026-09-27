@@ -1,822 +1,1325 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width,
-             initial-scale=1.0,
-             maximum-scale=1.0,
-             user-scalable=no,
-             viewport-fit=cover"
-  >
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
 
-  <title>HIRO AR Exhibition</title>
+<title>WebAR Exhibition</title>
 
-  <!-- A-FRAME -->
-  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+<style>
 
-  <!-- AR.JS -->
-  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+* {
+  box-sizing: border-box;
+}
 
-  <style>
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  font-family: Arial, sans-serif;
+}
 
-    * {
-      box-sizing: border-box;
-    }
+canvas {
+  display: block;
+}
 
-    html,
-    body {
-      margin: 0 !important;
-      padding: 0 !important;
 
-      width: 100%;
-      height: 100%;
+/* ========================================= */
+/* START                                     */
+/* ========================================= */
 
-      overflow: hidden;
+#start {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
 
-      background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-      font-family: Arial, sans-serif;
-    }
+  padding: 30px;
 
+  background: #111;
+  color: white;
 
-    /* ====================================== */
-    /* KAMERA                                 */
-    /* ====================================== */
+  text-align: center;
+}
 
-    video {
-      position: fixed !important;
+#start-inner {
+  width: 100%;
+  max-width: 420px;
+}
 
-      top: 50% !important;
-      left: 50% !important;
+#start h1 {
+  margin: 0 0 15px;
+  font-size: 32px;
+}
 
-      transform:
-        translate(-50%, -50%) !important;
+#start p {
+  margin: 0 0 25px;
 
-      width: 100vw !important;
-      height: 100vh !important;
+  opacity: 0.75;
 
-      max-width: none !important;
-      max-height: none !important;
+  font-size: 16px;
+  line-height: 1.5;
+}
 
-      object-fit: contain !important;
+#start-button {
+  width: 100%;
 
-      margin: 0 !important;
-      padding: 0 !important;
+  padding: 18px;
 
-      z-index: -2 !important;
-    }
+  border: 0;
+  border-radius: 14px;
 
+  background: white;
+  color: black;
 
-    canvas,
-    .a-canvas {
-      position: fixed !important;
+  font-size: 17px;
+  font-weight: bold;
 
-      top: 0 !important;
-      left: 0 !important;
+  cursor: pointer;
+}
 
-      width: 100vw !important;
-      height: 100vh !important;
 
-      margin: 0 !important;
-      padding: 0 !important;
-    }
+/* ========================================= */
+/* INFO                                      */
+/* ========================================= */
 
+#instruction {
+  position: fixed;
 
-    /* ====================================== */
-    /* UI                                     */
-    /* ====================================== */
+  top: 20px;
+  left: 50%;
 
-    #ui {
-      position: fixed;
+  transform: translateX(-50%);
 
-      top: max(
-        15px,
-        env(safe-area-inset-top)
-      );
+  z-index: 50;
 
-      left: 50%;
+  display: none;
 
-      transform: translateX(-50%);
+  width: calc(100% - 30px);
+  max-width: 450px;
 
-      width: calc(100% - 30px);
-      max-width: 460px;
+  padding: 14px 18px;
 
-      padding: 14px 16px;
+  border-radius: 14px;
 
-      border-radius: 14px;
+  background: rgba(0,0,0,0.72);
+  color: white;
 
-      background: rgba(0, 0, 0, 0.72);
+  text-align: center;
 
-      color: white;
+  font-size: 14px;
+  line-height: 1.4;
 
-      text-align: center;
+  pointer-events: none;
+}
 
-      z-index: 99999;
 
-      pointer-events: none;
-    }
+/* ========================================= */
+/* DEBUG                                     */
+/* ========================================= */
 
+#debug {
+  position: fixed;
 
-    #status {
-      font-size: 17px;
-      font-weight: bold;
-    }
+  bottom: 20px;
+  left: 20px;
 
+  z-index: 50;
 
-    #info {
-      margin-top: 5px;
+  display: none;
 
-      font-size: 13px;
+  padding: 10px 14px;
 
-      opacity: 0.8;
+  border-radius: 10px;
 
-      line-height: 1.4;
-    }
+  background: rgba(0,0,0,0.65);
+  color: white;
 
+  font-family: monospace;
+  font-size: 12px;
 
-    #debug {
-      margin-top: 8px;
+  pointer-events: none;
+}
 
-      font-family: monospace;
+#model-status {
+  margin-top: 5px;
+}
 
-      font-size: 11px;
 
-      opacity: 0.7;
-    }
+/* ========================================= */
+/* ERROR                                     */
+/* ========================================= */
 
+#error {
+  position: fixed;
+  inset: 0;
 
-    /* ====================================== */
-    /* CAMERA CONTROLS                        */
-    /* ====================================== */
+  z-index: 200;
 
-    #camera-controls {
-      position: fixed;
+  display: none;
+  align-items: center;
+  justify-content: center;
 
-      bottom: max(
-        20px,
-        env(safe-area-inset-bottom)
-      );
+  padding: 30px;
 
-      left: 50%;
+  background: #111;
+  color: white;
 
-      transform: translateX(-50%);
+  text-align: center;
+}
 
-      z-index: 999999;
-
-      display: flex;
-
-      gap: 8px;
-    }
-
-
-    #camera-controls button {
-      padding: 11px 16px;
-
-      border: none;
-
-      border-radius: 999px;
-
-      background: rgba(0, 0, 0, 0.75);
-
-      color: white;
-
-      font-size: 12px;
-      font-weight: bold;
-
-      cursor: pointer;
-    }
-
-
-    #camera-controls button.active {
-      background: white;
-      color: black;
-    }
-
-  </style>
+</style>
 </head>
 
 
 <body>
 
 
-<!-- ======================================== -->
-<!-- UI                                       -->
-<!-- ======================================== -->
+<!-- ======================================= -->
+<!-- START                                   -->
+<!-- ======================================= -->
 
-<div id="ui">
+<div id="start">
 
-  <div id="status">
-    🔎 Szukam HIRO...
+  <div id="start-inner">
+
+    <h1>Wystawa AR</h1>
+
+    <p>
+      Skieruj telefon na podłogę.
+      <br><br>
+      Kiedy pojawi się białe kółko,
+      dotknij ekranu.
+      <br><br>
+      Punkt można ustawić tylko raz.
+    </p>
+
+    <button id="start-button">
+      URUCHOM AR
+    </button>
+
   </div>
 
-  <div id="info">
-    Skieruj kamerę na marker na ścianie.
+</div>
+
+
+<!-- ======================================= -->
+<!-- INFO                                    -->
+<!-- ======================================= -->
+
+<div id="instruction">
+  Szukam podłogi...
+</div>
+
+
+<!-- ======================================= -->
+<!-- DEBUG                                   -->
+<!-- ======================================= -->
+
+<div id="debug">
+
+  RUCH:
+  <span id="distance">0.00</span> m
+
+  <div id="model-status">
+    MODELE: 0 / 3
   </div>
 
-  <div id="debug">
-    marker: niewidoczny
+</div>
+
+
+<!-- ======================================= -->
+<!-- ERROR                                   -->
+<!-- ======================================= -->
+
+<div id="error">
+
+  <div>
+
+    <h2>AR niedostępne</h2>
+
+    <p id="error-text"></p>
+
   </div>
 
 </div>
 
 
 
-<!-- ======================================== -->
-<!-- CAMERA FIT                               -->
-<!-- ======================================== -->
+<!-- ======================================= -->
+<!-- THREE.JS                                -->
+<!-- ======================================= -->
 
-<div id="camera-controls">
+<script type="importmap">
+{
+  "imports": {
 
-  <button
-    id="contain-button"
-    class="active"
-  >
-    CONTAIN
-  </button>
+    "three":
+      "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
 
-  <button
-    id="cover-button"
-  >
-    COVER
-  </button>
+    "three/addons/":
+      "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
 
-</div>
+  }
+}
+</script>
 
 
+<script type="module">
 
-<!-- ======================================== -->
-<!-- SCENA AR                                 -->
-<!-- ======================================== -->
+import * as THREE from "three";
 
-<a-scene
+import {
+  GLTFLoader
+} from "three/addons/loaders/GLTFLoader.js";
 
-  embedded
 
-  vr-mode-ui="
-    enabled: false
-  "
 
-  renderer="
-    antialias: true;
-    alpha: true;
-    colorManagement: true;
-  "
+/* ========================================= */
+/* HTML                                      */
+/* ========================================= */
 
-  arjs="
-    sourceType: webcam;
-    debugUIEnabled: false;
-    detectionMode: mono;
-    trackingMethod: best;
-  "
+const start =
+  document.getElementById("start");
 
->
+const startButton =
+  document.getElementById("start-button");
 
+const instruction =
+  document.getElementById("instruction");
 
-  <!-- ====================================== -->
-  <!-- ASSETS                                 -->
-  <!-- ====================================== -->
+const debug =
+  document.getElementById("debug");
 
-  <a-assets>
+const distanceText =
+  document.getElementById("distance");
 
-    <a-asset-item
-      id="model-1"
-      src="https://cdn.tinyglb.com/models/7f210788d6204cf09324b3655d9bead3.glb"
-    ></a-asset-item>
+const modelStatus =
+  document.getElementById("model-status");
 
+const errorScreen =
+  document.getElementById("error");
 
-    <a-asset-item
-      id="model-2"
-      src="https://cdn.tinyglb.com/models/778255d1a4ea48e8b0d28b870625a541.glb"
-    ></a-asset-item>
+const errorText =
+  document.getElementById("error-text");
 
 
-    <a-asset-item
-      id="model-3"
-      src="https://cdn.tinyglb.com/models/2421e7d6e984447c9a70bcf0ebaaebbe.glb"
-    ></a-asset-item>
 
-  </a-assets>
+/* ========================================= */
+/* SCENA                                     */
+/* ========================================= */
 
+const scene =
+  new THREE.Scene();
 
 
-  <!-- ====================================== -->
-  <!-- ŚWIATŁO                                -->
-  <!-- ====================================== -->
+const camera =
+  new THREE.PerspectiveCamera(
+    70,
+    window.innerWidth / window.innerHeight,
+    0.01,
+    100
+  );
 
-  <a-entity
 
-    light="
-      type: ambient;
-      intensity: 1.5;
-      color: #ffffff;
-    "
 
-  ></a-entity>
+/* ========================================= */
+/* RENDERER                                  */
+/* ========================================= */
 
+const renderer =
+  new THREE.WebGLRenderer({
+    antialias: true,
+    alpha: true
+  });
 
-  <a-entity
 
-    light="
-      type: directional;
-      intensity: 1.5;
-      color: #ffffff;
-    "
+renderer.setPixelRatio(
+  Math.min(
+    window.devicePixelRatio,
+    2
+  )
+);
 
-    position="2 4 3"
 
-  ></a-entity>
+renderer.setSize(
+  window.innerWidth,
+  window.innerHeight
+);
 
 
+renderer.xr.enabled = true;
 
-  <!-- ====================================== -->
-  <!-- MARKER HIRO                            -->
-  <!-- ====================================== -->
 
-  <a-marker
+renderer.outputColorSpace =
+  THREE.SRGBColorSpace;
 
-    id="hiro-marker"
 
-    preset="hiro"
+renderer.toneMapping =
+  THREE.ACESFilmicToneMapping;
 
-    smooth="true"
 
-    smoothCount="15"
+renderer.toneMappingExposure =
+  1.2;
 
-    smoothTolerance="0.01"
 
-    smoothThreshold="5"
+document.body.appendChild(
+  renderer.domElement
+);
 
-  >
 
 
-    <!-- ==================================== -->
-    <!-- WYSTAWA                              -->
-    <!-- ==================================== -->
+/* ========================================= */
+/* ŚWIATŁO                                   */
+/* ========================================= */
 
-    <!--
-      Na razie exhibition siedzi
-      dokładnie w centrum markera.
+const hemisphere =
+  new THREE.HemisphereLight(
+    0xffffff,
+    0x444444,
+    3
+  );
 
-      Wszystkie trzy modele mają:
-          position="0 0 0"
 
-      czyli idealnie ten sam punkt.
-    -->
+scene.add(
+  hemisphere
+);
 
-    <a-entity
-      id="exhibition"
-      position="0 0 0"
-      rotation="0 0 0"
-    >
 
 
-      <!-- ================================== -->
-      <!-- MODEL 1                            -->
-      <!-- ================================== -->
+const sun =
+  new THREE.DirectionalLight(
+    0xffffff,
+    3
+  );
 
-      <a-entity
 
-        id="sculpture-1"
+sun.position.set(
+  2,
+  5,
+  3
+);
 
-        gltf-model="#model-1"
 
-        position="0 0 0"
+scene.add(
+  sun
+);
 
-        rotation="0 0 0"
 
-        scale="1 1 1"
 
-      ></a-entity>
+/* ========================================= */
+/* RETICLE                                   */
+/* ========================================= */
 
+const reticleGeometry =
+  new THREE.RingGeometry(
+    0.08,
+    0.11,
+    40
+  );
 
 
-      <!-- ================================== -->
-      <!-- MODEL 2                            -->
-      <!-- ================================== -->
+reticleGeometry.rotateX(
+  -Math.PI / 2
+);
 
-      <a-entity
 
-        id="sculpture-2"
+const reticleMaterial =
+  new THREE.MeshBasicMaterial({
+    color: 0xffffff
+  });
 
-        gltf-model="#model-2"
 
-        position="0 0 0"
+const reticle =
+  new THREE.Mesh(
+    reticleGeometry,
+    reticleMaterial
+  );
 
-        rotation="0 0 0"
 
-        scale="1 1 1"
+reticle.matrixAutoUpdate = false;
 
-      ></a-entity>
+reticle.visible = false;
 
 
+scene.add(
+  reticle
+);
 
-      <!-- ================================== -->
-      <!-- MODEL 3                            -->
-      <!-- ================================== -->
 
-      <a-entity
 
-        id="sculpture-3"
+/* ========================================= */
+/* WYSTAWA                                   */
+/* ========================================= */
 
-        gltf-model="#model-3"
+const exhibition =
+  new THREE.Group();
 
-        position="0 0 0"
 
-        rotation="0 0 0"
+exhibition.visible = false;
 
-        scale="1 1 1"
 
-      ></a-entity>
+scene.add(
+  exhibition
+);
 
 
-    </a-entity>
 
+/* ========================================= */
+/* GLTF LOADER                               */
+/* ========================================= */
 
-  </a-marker>
+const loader =
+  new GLTFLoader();
 
 
+let loadedModels = 0;
 
-  <!-- ====================================== -->
-  <!-- KAMERA                                 -->
-  <!-- ====================================== -->
 
-  <a-entity camera></a-entity>
+/*
+  Wszystkie modele mają obecnie:
 
+  X = 0
+  Y = 0
+  Z = 0
 
-</a-scene>
+  Czyli dokładnie punkt zero wystawy.
+*/
 
 
+const modelURLs = [
 
-<script>
+  "https://cdn.tinyglb.com/models/7f210788d6204cf09324b3655d9bead3.glb",
 
-  /* ======================================== */
-  /* ELEMENTY                                 */
-  /* ======================================== */
+  "https://cdn.tinyglb.com/models/778255d1a4ea48e8b0d28b870625a541.glb",
 
-  const marker =
-    document.querySelector(
-      "#hiro-marker"
+  "https://cdn.tinyglb.com/models/2421e7d6e984447c9a70bcf0ebaaebbe.glb"
+
+];
+
+
+
+/* ========================================= */
+/* WCZYTYWANIE MODELU                        */
+/* ========================================= */
+
+async function loadModel(
+  url,
+  number
+) {
+
+  try {
+
+    const gltf =
+      await loader.loadAsync(
+        url
+      );
+
+
+    const model =
+      gltf.scene;
+
+
+
+    /* ===================================== */
+    /* POZYCJA                               */
+    /* ===================================== */
+
+    model.position.set(
+      0,
+      0,
+      0
     );
 
 
-  const status =
-    document.querySelector(
-      "#status"
+
+    /* ===================================== */
+    /* SKALA                                 */
+    /* ===================================== */
+
+    /*
+      Na razie NIE zmieniamy skali GLB.
+
+      1 jednostka modelu = 1 metr,
+      jeśli model został poprawnie
+      wyeksportowany.
+    */
+
+    model.scale.set(
+      1,
+      1,
+      1
     );
 
 
-  const info =
-    document.querySelector(
-      "#info"
+
+    /* ===================================== */
+    /* ROTACJA                               */
+    /* ===================================== */
+
+    model.rotation.set(
+      0,
+      0,
+      0
     );
 
 
-  const debug =
-    document.querySelector(
-      "#debug"
+
+    /* ===================================== */
+    /* SHADOW SETTINGS                       */
+    /* ===================================== */
+
+    model.traverse(
+      (child) => {
+
+        if (child.isMesh) {
+
+          child.castShadow = true;
+
+          child.receiveShadow = true;
+
+        }
+
+      }
     );
 
 
-  const containButton =
-    document.querySelector(
-      "#contain-button"
+
+    /* ===================================== */
+    /* DODAJ DO WYSTAWY                      */
+    /* ===================================== */
+
+    exhibition.add(
+      model
     );
 
 
-  const coverButton =
-    document.querySelector(
-      "#cover-button"
+
+    loadedModels++;
+
+
+    modelStatus.innerHTML =
+      "MODELE: " +
+      loadedModels +
+      " / 3";
+
+
+    console.log(
+      "Model " +
+      number +
+      " załadowany:",
+      model
     );
 
 
-  let markerVisible =
+  }
+
+  catch(error) {
+
+    console.error(
+      "Błąd modelu " +
+      number +
+      ":",
+      error
+    );
+
+
+    modelStatus.innerHTML =
+      "BŁĄD MODELU " +
+      number;
+
+  }
+
+}
+
+
+
+/* ========================================= */
+/* ŁADUJEMY 3 MODELE                         */
+/* ========================================= */
+
+loadModel(
+  modelURLs[0],
+  1
+);
+
+
+loadModel(
+  modelURLs[1],
+  2
+);
+
+
+loadModel(
+  modelURLs[2],
+  3
+);
+
+
+
+/* ========================================= */
+/* PUNKT ZERO                                */
+/* ========================================= */
+
+const originGeometry =
+  new THREE.RingGeometry(
+    0.15,
+    0.18,
+    40
+  );
+
+
+originGeometry.rotateX(
+  -Math.PI / 2
+);
+
+
+const origin =
+  new THREE.Mesh(
+
+    originGeometry,
+
+    new THREE.MeshBasicMaterial({
+      color: 0xffffff
+    })
+
+  );
+
+
+origin.position.y =
+  0.005;
+
+
+exhibition.add(
+  origin
+);
+
+
+
+/* ========================================= */
+/* WEBXR                                     */
+/* ========================================= */
+
+let session = null;
+
+let referenceSpace = null;
+
+let viewerSpace = null;
+
+let hitTestSource = null;
+
+let exhibitionPlaced = false;
+
+
+
+/* ========================================= */
+/* TRACKING DEBUG                            */
+/* ========================================= */
+
+const initialCameraPosition =
+  new THREE.Vector3();
+
+
+const currentCameraPosition =
+  new THREE.Vector3();
+
+
+let initialPositionSaved =
+  false;
+
+
+
+/* ========================================= */
+/* START                                     */
+/* ========================================= */
+
+async function startAR() {
+
+
+  if (!navigator.xr) {
+
+    showError(
+      "Ta przeglądarka nie obsługuje WebXR."
+    );
+
+    return;
+
+  }
+
+
+  try {
+
+
+    const supported =
+      await navigator.xr.isSessionSupported(
+        "immersive-ar"
+      );
+
+
+    if (!supported) {
+
+      showError(
+        "To urządzenie nie obsługuje immersive-ar."
+      );
+
+      return;
+
+    }
+
+
+
+    session =
+      await navigator.xr.requestSession(
+
+        "immersive-ar",
+
+        {
+
+          requiredFeatures: [
+            "hit-test"
+          ],
+
+          optionalFeatures: [
+            "local-floor",
+            "dom-overlay"
+          ],
+
+          domOverlay: {
+            root: document.body
+          }
+
+        }
+
+      );
+
+
+
+    renderer.xr.setReferenceSpaceType(
+      "local"
+    );
+
+
+    await renderer.xr.setSession(
+      session
+    );
+
+
+    referenceSpace =
+      renderer.xr.getReferenceSpace();
+
+
+    viewerSpace =
+      await session.requestReferenceSpace(
+        "viewer"
+      );
+
+
+    hitTestSource =
+      await session.requestHitTestSource({
+
+        space: viewerSpace
+
+      });
+
+
+
+    session.addEventListener(
+      "select",
+      placeExhibition
+    );
+
+
+    session.addEventListener(
+      "end",
+      endSession
+    );
+
+
+
+    start.style.display =
+      "none";
+
+
+    instruction.style.display =
+      "block";
+
+
+    debug.style.display =
+      "block";
+
+
+    renderer.setAnimationLoop(
+      render
+    );
+
+
+  }
+
+  catch(error) {
+
+
+    console.error(error);
+
+
+    showError(
+
+      "Nie udało się uruchomić AR. " +
+      "Sprawdź HTTPS i uprawnienia."
+
+    );
+
+  }
+
+}
+
+
+
+/* ========================================= */
+/* POSTAW WYSTAWĘ                            */
+/* ========================================= */
+
+function placeExhibition() {
+
+
+  if (!reticle.visible) {
+
+    return;
+
+  }
+
+
+  if (exhibitionPlaced) {
+
+    return;
+
+  }
+
+
+
+  /* ======================================= */
+  /* POZYCJA HIT TESTU                       */
+  /* ======================================= */
+
+  const hitPosition =
+    new THREE.Vector3();
+
+
+  hitPosition.setFromMatrixPosition(
+    reticle.matrix
+  );
+
+
+  exhibition.position.copy(
+    hitPosition
+  );
+
+
+
+  /* ======================================= */
+  /* OBRÓT WYSTAWY                           */
+  /* ======================================= */
+
+  const xrCamera =
+    renderer.xr.getCamera(
+      camera
+    );
+
+
+  const direction =
+    new THREE.Vector3();
+
+
+  xrCamera.getWorldDirection(
+    direction
+  );
+
+
+  direction.y = 0;
+
+
+  if (
+    direction.lengthSq() > 0
+  ) {
+
+    direction.normalize();
+
+
+    const angle =
+      Math.atan2(
+        direction.x,
+        direction.z
+      );
+
+
+    exhibition.rotation.y =
+      angle + Math.PI;
+
+  }
+
+
+
+  /* ======================================= */
+  /* POKAŻ WYSTAWĘ                           */
+  /* ======================================= */
+
+  exhibition.visible =
+    true;
+
+
+  exhibitionPlaced =
+    true;
+
+
+  reticle.visible =
     false;
 
 
 
-  /* ======================================== */
-  /* LOGOWANIE MODELI                         */
-  /* ======================================== */
+  /* ======================================= */
+  /* BLOKADA KOLEJNEGO KLIKNIĘCIA            */
+  /* ======================================= */
 
-  const models = [
-    document.querySelector("#sculpture-1"),
-    document.querySelector("#sculpture-2"),
-    document.querySelector("#sculpture-3")
-  ];
+  if (session) {
 
-
-  models.forEach((model, index) => {
-
-    model.addEventListener(
-      "model-loaded",
-      () => {
-
-        console.log(
-          "MODEL",
-          index + 1,
-          "ZAŁADOWANY"
-        );
-
-      }
-    );
-
-
-    model.addEventListener(
-      "model-error",
-      (event) => {
-
-        console.error(
-          "BŁĄD MODELU",
-          index + 1,
-          event
-        );
-
-      }
-    );
-
-  });
-
-
-
-  /* ======================================== */
-  /* VIDEO                                    */
-  /* ======================================== */
-
-  function getVideo() {
-
-    return document.querySelector(
-      "video"
+    session.removeEventListener(
+      "select",
+      placeExhibition
     );
 
   }
 
 
 
-  /* ======================================== */
-  /* CONTAIN                                  */
-  /* ======================================== */
+  /* ======================================= */
+  /* ZAPIS POZYCJI TELEFONU                  */
+  /* ======================================= */
 
-  function setContain() {
+  /*
+    Pobieramy pozycję w dokładnie tym samym
+    referenceSpace, którego później używamy
+    do mierzenia ruchu.
+  */
 
-    const video =
-      getVideo();
+  const frame =
+    renderer.xr.getFrame();
 
 
-    if (!video) {
+  if (frame && referenceSpace) {
 
-      setTimeout(
-        setContain,
-        100
+    const viewerPose =
+      frame.getViewerPose(
+        referenceSpace
       );
 
-      return;
 
-    }
+    if (viewerPose) {
 
+      initialCameraPosition.set(
 
-    video.style.setProperty(
-      "object-fit",
-      "contain",
-      "important"
-    );
+        viewerPose.transform.position.x,
 
+        viewerPose.transform.position.y,
 
-    containButton.classList.add(
-      "active"
-    );
+        viewerPose.transform.position.z
+
+      );
 
 
-    coverButton.classList.remove(
-      "active"
-    );
-
-  }
-
-
-
-  /* ======================================== */
-  /* COVER                                    */
-  /* ======================================== */
-
-  function setCover() {
-
-    const video =
-      getVideo();
-
-
-    if (!video) {
-      return;
-    }
-
-
-    video.style.setProperty(
-      "object-fit",
-      "cover",
-      "important"
-    );
-
-
-    coverButton.classList.add(
-      "active"
-    );
-
-
-    containButton.classList.remove(
-      "active"
-    );
-
-  }
-
-
-
-  /* ======================================== */
-  /* BUTTONS                                  */
-  /* ======================================== */
-
-  containButton.addEventListener(
-    "click",
-    setContain
-  );
-
-
-  coverButton.addEventListener(
-    "click",
-    setCover
-  );
-
-
-
-  /* ======================================== */
-  /* HIRO FOUND                               */
-  /* ======================================== */
-
-  marker.addEventListener(
-
-    "markerFound",
-
-    () => {
-
-      markerVisible =
+      initialPositionSaved =
         true;
 
+    }
 
-      status.innerHTML =
-        "✓ HIRO ZNALEZIONY";
+  }
 
 
-      info.innerHTML =
-        "3 modele ustawione w punkcie markera.";
+
+  instruction.innerHTML =
+
+    "Wystawa ustawiona.<br>" +
+    "3 modele znajdują się w punkcie zero.";
+
+}
+
+
+
+/* ========================================= */
+/* RENDER                                    */
+/* ========================================= */
+
+function render(
+  timestamp,
+  frame
+) {
+
+
+  /* ======================================= */
+  /* HIT TEST                                */
+  /* ======================================= */
+
+  if (
+
+    frame &&
+    hitTestSource &&
+    referenceSpace &&
+    !exhibitionPlaced
+
+  ) {
+
+
+    const results =
+      frame.getHitTestResults(
+        hitTestSource
+      );
+
+
+    if (
+      results.length > 0
+    ) {
+
+
+      const hit =
+        results[0];
+
+
+      const pose =
+        hit.getPose(
+          referenceSpace
+        );
+
+
+      if (pose) {
+
+
+        reticle.visible =
+          true;
+
+
+        reticle.matrix.fromArray(
+          pose.transform.matrix
+        );
+
+
+        instruction.innerHTML =
+
+          "Podłoga wykryta.<br>" +
+          "Dotknij ekranu, aby ustawić wystawę.";
+
+      }
 
     }
 
-  );
+
+    else {
 
 
-
-  /* ======================================== */
-  /* HIRO LOST                                */
-  /* ======================================== */
-
-  marker.addEventListener(
-
-    "markerLost",
-
-    () => {
-
-      markerVisible =
+      reticle.visible =
         false;
 
 
-      status.innerHTML =
-        "⚠ HIRO POZA KADREM";
+      instruction.innerHTML =
 
-
-      info.innerHTML =
-        "Skieruj kamerę ponownie na marker.";
+        "Szukam podłogi...<br>" +
+        "Poruszaj telefonem powoli.";
 
     }
 
-  );
+  }
 
 
 
-  /* ======================================== */
-  /* DEBUG                                    */
-  /* ======================================== */
+  /* ======================================= */
+  /* DEBUG RUCHU                             */
+  /* ======================================= */
 
-  setInterval(
+  if (
 
-    () => {
+    frame &&
+    referenceSpace &&
+    initialPositionSaved
 
-      const video =
-        getVideo();
-
-
-      if (!video) {
-
-        debug.innerHTML =
-          "czekam na kamerę...";
-
-        return;
-
-      }
+  ) {
 
 
-      debug.innerHTML =
-
-        "marker: " +
-
-        (
-          markerVisible
-            ? "TAK"
-            : "NIE"
-        ) +
-
-        "<br>" +
-
-        "kamera: " +
-
-        (video.videoWidth || 0) +
-
-        " × " +
-
-        (video.videoHeight || 0) +
-
-        "<br>" +
-
-        "ekran: " +
-
-        window.innerWidth +
-
-        " × " +
-
-        window.innerHeight;
-
-    },
-
-    300
-
-  );
-
-
-
-  /* ======================================== */
-  /* WYMUSZENIE CONTAIN                       */
-  /* ======================================== */
-
-  window.addEventListener(
-
-    "load",
-
-    () => {
-
-      setTimeout(
-        setContain,
-        500
+    const viewerPose =
+      frame.getViewerPose(
+        referenceSpace
       );
 
 
-      setTimeout(
-        setContain,
-        1500
+    if (viewerPose) {
+
+
+      currentCameraPosition.set(
+
+        viewerPose.transform.position.x,
+
+        viewerPose.transform.position.y,
+
+        viewerPose.transform.position.z
+
       );
 
 
-      setTimeout(
-        setContain,
-        3000
-      );
+      const distance =
+        currentCameraPosition.distanceTo(
+          initialCameraPosition
+        );
+
+
+      distanceText.textContent =
+        distance.toFixed(2);
 
     }
 
+  }
+
+
+
+  renderer.render(
+    scene,
+    camera
+  );
+
+}
+
+
+
+/* ========================================= */
+/* END                                       */
+/* ========================================= */
+
+function endSession() {
+
+
+  session =
+    null;
+
+
+  referenceSpace =
+    null;
+
+
+  viewerSpace =
+    null;
+
+
+  hitTestSource =
+    null;
+
+
+  exhibitionPlaced =
+    false;
+
+
+  initialPositionSaved =
+    false;
+
+
+  exhibition.visible =
+    false;
+
+
+  reticle.visible =
+    false;
+
+
+  distanceText.textContent =
+    "0.00";
+
+
+  renderer.setAnimationLoop(
+    null
   );
 
 
+  instruction.style.display =
+    "none";
 
-  /* ======================================== */
-  /* RESIZE                                   */
-  /* ======================================== */
 
-  window.addEventListener(
+  debug.style.display =
+    "none";
 
-    "resize",
 
-    () => {
+  start.style.display =
+    "flex";
 
-      setTimeout(
-        setContain,
-        100
-      );
+}
 
-    }
 
-  );
+
+/* ========================================= */
+/* ERROR                                     */
+/* ========================================= */
+
+function showError(message) {
+
+
+  start.style.display =
+    "none";
+
+
+  errorScreen.style.display =
+    "flex";
+
+
+  errorText.textContent =
+    message;
+
+}
+
+
+
+/* ========================================= */
+/* RESIZE                                    */
+/* ========================================= */
+
+window.addEventListener(
+
+  "resize",
+
+  () => {
+
+
+    camera.aspect =
+      window.innerWidth /
+      window.innerHeight;
+
+
+    camera.updateProjectionMatrix();
+
+
+    renderer.setSize(
+      window.innerWidth,
+      window.innerHeight
+    );
+
+  }
+
+);
+
+
+
+/* ========================================= */
+/* BUTTON                                    */
+/* ========================================= */
+
+startButton.addEventListener(
+  "click",
+  startAR
+);
 
 </script>
-
 
 </body>
 </html>
