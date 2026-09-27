@@ -1,272 +1,822 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8">
+  <meta charset="UTF-8">
 
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
->
+  <meta
+    name="viewport"
+    content="width=device-width,
+             initial-scale=1.0,
+             maximum-scale=1.0,
+             user-scalable=no,
+             viewport-fit=cover"
+  >
 
-<title>WebAR Exhibition</title>
+  <title>HIRO AR Exhibition</title>
 
-<style>
+  <!-- A-FRAME -->
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
-* {
-  box-sizing: border-box;
-}
+  <!-- AR.JS -->
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 
-html,
-body {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #000;
-  font-family: Arial, sans-serif;
-}
+  <style>
 
-canvas {
-  display: block;
-}
+    * {
+      box-sizing: border-box;
+    }
 
+    html,
+    body {
+      margin: 0 !important;
+      padding: 0 !important;
 
-/* ========================================= */
-/* START                                     */
-/* ========================================= */
+      width: 100%;
+      height: 100%;
 
-#start {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
+      overflow: hidden;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+      background: #000;
 
-  padding: 30px;
-
-  background: #111;
-  color: white;
-
-  text-align: center;
-}
-
-#start-inner {
-  width: 100%;
-  max-width: 420px;
-}
-
-#start h1 {
-  margin: 0 0 15px;
-  font-size: 32px;
-}
-
-#start p {
-  margin: 0 0 25px;
-
-  opacity: 0.75;
-
-  font-size: 16px;
-  line-height: 1.5;
-}
-
-#start-button {
-  width: 100%;
-
-  padding: 18px;
-
-  border: 0;
-  border-radius: 14px;
-
-  background: white;
-  color: black;
-
-  font-size: 17px;
-  font-weight: bold;
-
-  cursor: pointer;
-}
+      font-family: Arial, sans-serif;
+    }
 
 
-/* ========================================= */
-/* INFO                                      */
-/* ========================================= */
+    /* ====================================== */
+    /* KAMERA                                 */
+    /* ====================================== */
 
-#instruction {
-  position: fixed;
+    video {
+      position: fixed !important;
 
-  top: 20px;
-  left: 50%;
+      top: 50% !important;
+      left: 50% !important;
 
-  transform: translateX(-50%);
+      transform:
+        translate(-50%, -50%) !important;
 
-  z-index: 50;
+      width: 100vw !important;
+      height: 100vh !important;
 
-  display: none;
+      max-width: none !important;
+      max-height: none !important;
 
-  width: calc(100% - 30px);
-  max-width: 450px;
+      object-fit: contain !important;
 
-  padding: 14px 18px;
+      margin: 0 !important;
+      padding: 0 !important;
 
-  border-radius: 14px;
-
-  background: rgba(0,0,0,0.72);
-  color: white;
-
-  text-align: center;
-
-  font-size: 14px;
-  line-height: 1.4;
-
-  pointer-events: none;
-}
+      z-index: -2 !important;
+    }
 
 
-/* ========================================= */
-/* DEBUG                                     */
-/* ========================================= */
+    canvas,
+    .a-canvas {
+      position: fixed !important;
 
-#debug {
-  position: fixed;
+      top: 0 !important;
+      left: 0 !important;
 
-  bottom: 20px;
-  left: 20px;
+      width: 100vw !important;
+      height: 100vh !important;
 
-  z-index: 50;
-
-  display: none;
-
-  padding: 10px 14px;
-
-  border-radius: 10px;
-
-  background: rgba(0,0,0,0.65);
-  color: white;
-
-  font-family: monospace;
-  font-size: 12px;
-
-  pointer-events: none;
-}
+      margin: 0 !important;
+      padding: 0 !important;
+    }
 
 
-/* ========================================= */
-/* ERROR                                     */
-/* ========================================= */
+    /* ====================================== */
+    /* UI                                     */
+    /* ====================================== */
 
-#error {
-  position: fixed;
-  inset: 0;
+    #ui {
+      position: fixed;
 
-  z-index: 200;
+      top: max(
+        15px,
+        env(safe-area-inset-top)
+      );
 
-  display: none;
-  align-items: center;
-  justify-content: center;
+      left: 50%;
 
-  padding: 30px;
+      transform: translateX(-50%);
 
-  background: #111;
-  color: white;
+      width: calc(100% - 30px);
+      max-width: 460px;
 
-  text-align: center;
-}
+      padding: 14px 16px;
 
-</style>
-<script type="importmap">
-{
-  "imports": {
-    "three":
-      "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"
-  }
-}
-</script>
-  <script type="module" crossorigin src="/assets/index-BmjsWtGQ.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/three-DrTfNg72.js">
+      border-radius: 14px;
+
+      background: rgba(0, 0, 0, 0.72);
+
+      color: white;
+
+      text-align: center;
+
+      z-index: 99999;
+
+      pointer-events: none;
+    }
+
+
+    #status {
+      font-size: 17px;
+      font-weight: bold;
+    }
+
+
+    #info {
+      margin-top: 5px;
+
+      font-size: 13px;
+
+      opacity: 0.8;
+
+      line-height: 1.4;
+    }
+
+
+    #debug {
+      margin-top: 8px;
+
+      font-family: monospace;
+
+      font-size: 11px;
+
+      opacity: 0.7;
+    }
+
+
+    /* ====================================== */
+    /* CAMERA CONTROLS                        */
+    /* ====================================== */
+
+    #camera-controls {
+      position: fixed;
+
+      bottom: max(
+        20px,
+        env(safe-area-inset-bottom)
+      );
+
+      left: 50%;
+
+      transform: translateX(-50%);
+
+      z-index: 999999;
+
+      display: flex;
+
+      gap: 8px;
+    }
+
+
+    #camera-controls button {
+      padding: 11px 16px;
+
+      border: none;
+
+      border-radius: 999px;
+
+      background: rgba(0, 0, 0, 0.75);
+
+      color: white;
+
+      font-size: 12px;
+      font-weight: bold;
+
+      cursor: pointer;
+    }
+
+
+    #camera-controls button.active {
+      background: white;
+      color: black;
+    }
+
+  </style>
 </head>
 
 
 <body>
 
 
-<!-- ======================================= -->
-<!-- START                                   -->
-<!-- ======================================= -->
+<!-- ======================================== -->
+<!-- UI                                       -->
+<!-- ======================================== -->
 
-<div id="start">
+<div id="ui">
 
-  <div id="start-inner">
-
-    <h1>Wystawa AR</h1>
-
-    <p>
-      Skieruj telefon na podłogę.
-      <br><br>
-      Kiedy pojawi się białe kółko,
-      dotknij ekranu.
-      <br><br>
-      Punkt można ustawić tylko raz.
-    </p>
-
-    <button id="start-button">
-      URUCHOM AR
-    </button>
-
+  <div id="status">
+    🔎 Szukam HIRO...
   </div>
 
-</div>
+  <div id="info">
+    Skieruj kamerę na marker na ścianie.
+  </div>
 
-
-<!-- ======================================= -->
-<!-- INFO                                    -->
-<!-- ======================================= -->
-
-<div id="instruction">
-  Szukam podłogi...
-</div>
-
-
-<!-- ======================================= -->
-<!-- DEBUG                                   -->
-<!-- ======================================= -->
-
-<div id="debug">
-
-  RUCH:
-  <span id="distance">0.00</span> m
-
-</div>
-
-
-<!-- ======================================= -->
-<!-- ERROR                                   -->
-<!-- ======================================= -->
-
-<div id="error">
-
-  <div>
-
-    <h2>AR niedostępne</h2>
-
-    <p id="error-text"></p>
-
+  <div id="debug">
+    marker: niewidoczny
   </div>
 
 </div>
 
 
 
-<!-- ======================================= -->
-<!-- THREE.JS                                -->
-<!-- ======================================= -->
+<!-- ======================================== -->
+<!-- CAMERA FIT                               -->
+<!-- ======================================== -->
+
+<div id="camera-controls">
+
+  <button
+    id="contain-button"
+    class="active"
+  >
+    CONTAIN
+  </button>
+
+  <button
+    id="cover-button"
+  >
+    COVER
+  </button>
+
+</div>
 
 
 
+<!-- ======================================== -->
+<!-- SCENA AR                                 -->
+<!-- ======================================== -->
+
+<a-scene
+
+  embedded
+
+  vr-mode-ui="
+    enabled: false
+  "
+
+  renderer="
+    antialias: true;
+    alpha: true;
+    colorManagement: true;
+  "
+
+  arjs="
+    sourceType: webcam;
+    debugUIEnabled: false;
+    detectionMode: mono;
+    trackingMethod: best;
+  "
+
+>
+
+
+  <!-- ====================================== -->
+  <!-- ASSETS                                 -->
+  <!-- ====================================== -->
+
+  <a-assets>
+
+    <a-asset-item
+      id="model-1"
+      src="https://cdn.tinyglb.com/models/7f210788d6204cf09324b3655d9bead3.glb"
+    ></a-asset-item>
+
+
+    <a-asset-item
+      id="model-2"
+      src="https://cdn.tinyglb.com/models/778255d1a4ea48e8b0d28b870625a541.glb"
+    ></a-asset-item>
+
+
+    <a-asset-item
+      id="model-3"
+      src="https://cdn.tinyglb.com/models/2421e7d6e984447c9a70bcf0ebaaebbe.glb"
+    ></a-asset-item>
+
+  </a-assets>
+
+
+
+  <!-- ====================================== -->
+  <!-- ŚWIATŁO                                -->
+  <!-- ====================================== -->
+
+  <a-entity
+
+    light="
+      type: ambient;
+      intensity: 1.5;
+      color: #ffffff;
+    "
+
+  ></a-entity>
+
+
+  <a-entity
+
+    light="
+      type: directional;
+      intensity: 1.5;
+      color: #ffffff;
+    "
+
+    position="2 4 3"
+
+  ></a-entity>
+
+
+
+  <!-- ====================================== -->
+  <!-- MARKER HIRO                            -->
+  <!-- ====================================== -->
+
+  <a-marker
+
+    id="hiro-marker"
+
+    preset="hiro"
+
+    smooth="true"
+
+    smoothCount="15"
+
+    smoothTolerance="0.01"
+
+    smoothThreshold="5"
+
+  >
+
+
+    <!-- ==================================== -->
+    <!-- WYSTAWA                              -->
+    <!-- ==================================== -->
+
+    <!--
+      Na razie exhibition siedzi
+      dokładnie w centrum markera.
+
+      Wszystkie trzy modele mają:
+          position="0 0 0"
+
+      czyli idealnie ten sam punkt.
+    -->
+
+    <a-entity
+      id="exhibition"
+      position="0 0 0"
+      rotation="0 0 0"
+    >
+
+
+      <!-- ================================== -->
+      <!-- MODEL 1                            -->
+      <!-- ================================== -->
+
+      <a-entity
+
+        id="sculpture-1"
+
+        gltf-model="#model-1"
+
+        position="0 0 0"
+
+        rotation="0 0 0"
+
+        scale="1 1 1"
+
+      ></a-entity>
+
+
+
+      <!-- ================================== -->
+      <!-- MODEL 2                            -->
+      <!-- ================================== -->
+
+      <a-entity
+
+        id="sculpture-2"
+
+        gltf-model="#model-2"
+
+        position="0 0 0"
+
+        rotation="0 0 0"
+
+        scale="1 1 1"
+
+      ></a-entity>
+
+
+
+      <!-- ================================== -->
+      <!-- MODEL 3                            -->
+      <!-- ================================== -->
+
+      <a-entity
+
+        id="sculpture-3"
+
+        gltf-model="#model-3"
+
+        position="0 0 0"
+
+        rotation="0 0 0"
+
+        scale="1 1 1"
+
+      ></a-entity>
+
+
+    </a-entity>
+
+
+  </a-marker>
+
+
+
+  <!-- ====================================== -->
+  <!-- KAMERA                                 -->
+  <!-- ====================================== -->
+
+  <a-entity camera></a-entity>
+
+
+</a-scene>
+
+
+
+<script>
+
+  /* ======================================== */
+  /* ELEMENTY                                 */
+  /* ======================================== */
+
+  const marker =
+    document.querySelector(
+      "#hiro-marker"
+    );
+
+
+  const status =
+    document.querySelector(
+      "#status"
+    );
+
+
+  const info =
+    document.querySelector(
+      "#info"
+    );
+
+
+  const debug =
+    document.querySelector(
+      "#debug"
+    );
+
+
+  const containButton =
+    document.querySelector(
+      "#contain-button"
+    );
+
+
+  const coverButton =
+    document.querySelector(
+      "#cover-button"
+    );
+
+
+  let markerVisible =
+    false;
+
+
+
+  /* ======================================== */
+  /* LOGOWANIE MODELI                         */
+  /* ======================================== */
+
+  const models = [
+    document.querySelector("#sculpture-1"),
+    document.querySelector("#sculpture-2"),
+    document.querySelector("#sculpture-3")
+  ];
+
+
+  models.forEach((model, index) => {
+
+    model.addEventListener(
+      "model-loaded",
+      () => {
+
+        console.log(
+          "MODEL",
+          index + 1,
+          "ZAŁADOWANY"
+        );
+
+      }
+    );
+
+
+    model.addEventListener(
+      "model-error",
+      (event) => {
+
+        console.error(
+          "BŁĄD MODELU",
+          index + 1,
+          event
+        );
+
+      }
+    );
+
+  });
+
+
+
+  /* ======================================== */
+  /* VIDEO                                    */
+  /* ======================================== */
+
+  function getVideo() {
+
+    return document.querySelector(
+      "video"
+    );
+
+  }
+
+
+
+  /* ======================================== */
+  /* CONTAIN                                  */
+  /* ======================================== */
+
+  function setContain() {
+
+    const video =
+      getVideo();
+
+
+    if (!video) {
+
+      setTimeout(
+        setContain,
+        100
+      );
+
+      return;
+
+    }
+
+
+    video.style.setProperty(
+      "object-fit",
+      "contain",
+      "important"
+    );
+
+
+    containButton.classList.add(
+      "active"
+    );
+
+
+    coverButton.classList.remove(
+      "active"
+    );
+
+  }
+
+
+
+  /* ======================================== */
+  /* COVER                                    */
+  /* ======================================== */
+
+  function setCover() {
+
+    const video =
+      getVideo();
+
+
+    if (!video) {
+      return;
+    }
+
+
+    video.style.setProperty(
+      "object-fit",
+      "cover",
+      "important"
+    );
+
+
+    coverButton.classList.add(
+      "active"
+    );
+
+
+    containButton.classList.remove(
+      "active"
+    );
+
+  }
+
+
+
+  /* ======================================== */
+  /* BUTTONS                                  */
+  /* ======================================== */
+
+  containButton.addEventListener(
+    "click",
+    setContain
+  );
+
+
+  coverButton.addEventListener(
+    "click",
+    setCover
+  );
+
+
+
+  /* ======================================== */
+  /* HIRO FOUND                               */
+  /* ======================================== */
+
+  marker.addEventListener(
+
+    "markerFound",
+
+    () => {
+
+      markerVisible =
+        true;
+
+
+      status.innerHTML =
+        "✓ HIRO ZNALEZIONY";
+
+
+      info.innerHTML =
+        "3 modele ustawione w punkcie markera.";
+
+    }
+
+  );
+
+
+
+  /* ======================================== */
+  /* HIRO LOST                                */
+  /* ======================================== */
+
+  marker.addEventListener(
+
+    "markerLost",
+
+    () => {
+
+      markerVisible =
+        false;
+
+
+      status.innerHTML =
+        "⚠ HIRO POZA KADREM";
+
+
+      info.innerHTML =
+        "Skieruj kamerę ponownie na marker.";
+
+    }
+
+  );
+
+
+
+  /* ======================================== */
+  /* DEBUG                                    */
+  /* ======================================== */
+
+  setInterval(
+
+    () => {
+
+      const video =
+        getVideo();
+
+
+      if (!video) {
+
+        debug.innerHTML =
+          "czekam na kamerę...";
+
+        return;
+
+      }
+
+
+      debug.innerHTML =
+
+        "marker: " +
+
+        (
+          markerVisible
+            ? "TAK"
+            : "NIE"
+        ) +
+
+        "<br>" +
+
+        "kamera: " +
+
+        (video.videoWidth || 0) +
+
+        " × " +
+
+        (video.videoHeight || 0) +
+
+        "<br>" +
+
+        "ekran: " +
+
+        window.innerWidth +
+
+        " × " +
+
+        window.innerHeight;
+
+    },
+
+    300
+
+  );
+
+
+
+  /* ======================================== */
+  /* WYMUSZENIE CONTAIN                       */
+  /* ======================================== */
+
+  window.addEventListener(
+
+    "load",
+
+    () => {
+
+      setTimeout(
+        setContain,
+        500
+      );
+
+
+      setTimeout(
+        setContain,
+        1500
+      );
+
+
+      setTimeout(
+        setContain,
+        3000
+      );
+
+    }
+
+  );
+
+
+
+  /* ======================================== */
+  /* RESIZE                                   */
+  /* ======================================== */
+
+  window.addEventListener(
+
+    "resize",
+
+    () => {
+
+      setTimeout(
+        setContain,
+        100
+      );
+
+    }
+
+  );
+
+</script>
 
 
 </body>
 </html>
-
-
