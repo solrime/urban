@@ -234,7 +234,7 @@ canvas {
   <span id="distance">0.00</span> m
 
   <div id="model-status">
-    MODELE: 0 / 3
+    MODELE: 0 / 4
   </div>
 
 </div>
@@ -326,6 +326,7 @@ const errorText =
 /*
 
   POSITION:
+
   x = lewo / prawo
   y = góra / dół
   z = przód / tył
@@ -343,9 +344,7 @@ const errorText =
 
   ROTATION:
 
-  W stopniach.
-
-  y: 90 = obrót o 90°.
+  Podajesz w stopniach.
 
 */
 
@@ -365,16 +364,16 @@ const models = [
 
     position: {
 
-      x: 5,
+      x: 0,
 
-      y: 5,
+      y: 0,
 
       z: 0
 
     },
 
 
-    scale: 5,
+    scale: 1,
 
 
     rotation: {
@@ -403,7 +402,7 @@ const models = [
 
     position: {
 
-      x: -1,
+      x: 0,
 
       y: 0,
 
@@ -412,7 +411,7 @@ const models = [
     },
 
 
-    scale: 5,
+    scale: 1,
 
 
     rotation: {
@@ -450,7 +449,45 @@ const models = [
     },
 
 
-    scale: 5,
+    scale: 1,
+
+
+    rotation: {
+
+      x: 0,
+
+      y: 0,
+
+      z: 0
+
+    }
+
+  },
+
+
+
+  /* ======================================= */
+  /* RZEŹBA 4                                */
+  /* ======================================= */
+
+  {
+
+    url:
+      "https://cdn.tinyglb.com/models/cc241f3348914cccb0ee27be60c3d30f.glb",
+
+
+    position: {
+
+      x: 0,
+
+      y: 0,
+
+      z: 0
+
+    },
+
+
+    scale: 1,
 
 
     rotation: {
@@ -701,17 +738,6 @@ let loadedModels =
 /* SHADE FLAT                                */
 /* ========================================= */
 
-/*
-
-  Odpowiednik:
-
-  Blender -> Object -> Shade Flat
-
-  Przechodzimy przez wszystkie meshe
-  znajdujące się wewnątrz GLB.
-
-*/
-
 function applyFlatShading(model) {
 
 
@@ -736,11 +762,6 @@ function applyFlatShading(model) {
 
 
 
-      /* =================================== */
-      /* MODEL MOŻE MIEĆ JEDEN LUB           */
-      /* KILKA MATERIAŁÓW                    */
-      /* =================================== */
-
       const materials =
         Array.isArray(child.material)
 
@@ -762,6 +783,7 @@ function applyFlatShading(model) {
           }
 
 
+
           /* ================================= */
           /* SHADE FLAT                        */
           /* ================================= */
@@ -769,14 +791,6 @@ function applyFlatShading(model) {
           mat.flatShading =
             true;
 
-
-          /*
-
-            Informujemy Three.js,
-            że shader materiału
-            musi zostać przebudowany.
-
-          */
 
           mat.needsUpdate =
             true;
@@ -1411,7 +1425,7 @@ function placeExhibition() {
 
 
   /* ======================================= */
-  /* POKAŻ                                   */
+  /* POKAŻ WYSTAWĘ                           */
   /* ======================================= */
 
   exhibition.visible =
@@ -1428,7 +1442,7 @@ function placeExhibition() {
 
 
   /* ======================================= */
-  /* BLOKADA KOLEJNYCH TAPNIĘĆ               */
+  /* BLOKADA KOLEJNYCH KLIKNIĘĆ              */
   /* ======================================= */
 
   if (session) {
