@@ -2,16 +2,13 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-
 <meta
   name="viewport"
   content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
 >
-
 <title>WebAR Exhibition</title>
 
 <style>
-
 * {
   box-sizing: border-box;
 }
@@ -30,7 +27,6 @@ canvas {
   display: block;
 }
 
-
 /* ========================================= */
 /* START                                     */
 /* ========================================= */
@@ -39,16 +35,12 @@ canvas {
   position: fixed;
   inset: 0;
   z-index: 100;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: 30px;
-
   background: #111;
   color: white;
-
   text-align: center;
 }
 
@@ -64,30 +56,22 @@ canvas {
 
 #start p {
   margin: 0 0 25px;
-
   opacity: 0.75;
-
   font-size: 16px;
   line-height: 1.5;
 }
 
 #start-button {
   width: 100%;
-
   padding: 18px;
-
   border: 0;
   border-radius: 14px;
-
   background: white;
   color: black;
-
   font-size: 17px;
   font-weight: bold;
-
   cursor: pointer;
 }
-
 
 /* ========================================= */
 /* INFO                                      */
@@ -95,34 +79,22 @@ canvas {
 
 #instruction {
   position: fixed;
-
   top: 20px;
   left: 50%;
-
   transform: translateX(-50%);
-
   z-index: 50;
-
   display: none;
-
   width: calc(100% - 30px);
   max-width: 450px;
-
   padding: 14px 18px;
-
   border-radius: 14px;
-
   background: rgba(0,0,0,0.72);
   color: white;
-
   text-align: center;
-
   font-size: 14px;
   line-height: 1.4;
-
   pointer-events: none;
 }
-
 
 /* ========================================= */
 /* DEBUG                                     */
@@ -130,31 +102,22 @@ canvas {
 
 #debug {
   position: fixed;
-
   bottom: 20px;
   left: 20px;
-
   z-index: 50;
-
   display: none;
-
   padding: 10px 14px;
-
   border-radius: 10px;
-
   background: rgba(0,0,0,0.65);
   color: white;
-
   font-family: monospace;
   font-size: 12px;
-
   pointer-events: none;
 }
 
 #model-status {
   margin-top: 5px;
 }
-
 
 /* ========================================= */
 /* ERROR                                     */
@@ -163,49 +126,38 @@ canvas {
 #error {
   position: fixed;
   inset: 0;
-
   z-index: 200;
-
   display: none;
   align-items: center;
   justify-content: center;
-
   padding: 30px;
-
   background: #111;
   color: white;
-
   text-align: center;
 }
-
 </style>
 <script type="importmap">
 {
   "imports": {
-
     "three":
       "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
 
     "three/addons/":
       "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
-
   }
 }
 </script>
-  <script type="module" crossorigin src="/assets/index-DwdNNnnc.js"></script>
+  <script type="module" crossorigin src="/assets/index-ByGQ3DKp.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/three-0N6az7ky.js">
 </head>
 
-
 <body>
-
 
 <!-- ======================================= -->
 <!-- START                                   -->
 <!-- ======================================= -->
 
 <div id="start">
-
   <div id="start-inner">
 
     <h1>Wystawa AR</h1>
@@ -226,7 +178,6 @@ canvas {
     </button>
 
   </div>
-
 </div>
 
 
@@ -244,14 +195,12 @@ canvas {
 <!-- ======================================= -->
 
 <div id="debug">
-
   RUCH:
   <span id="distance">0.00</span> m
 
   <div id="model-status">
     MODELE: 0 / 4
   </div>
-
 </div>
 
 
@@ -260,17 +209,11 @@ canvas {
 <!-- ======================================= -->
 
 <div id="error">
-
   <div>
-
     <h2>AR niedostępne</h2>
-
     <p id="error-text"></p>
-
   </div>
-
 </div>
-
 
 
 <!-- ======================================= -->

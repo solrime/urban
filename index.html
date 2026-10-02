@@ -2,16 +2,13 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-
 <meta
   name="viewport"
   content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
 >
-
 <title>WebAR Exhibition</title>
 
 <style>
-
 * {
   box-sizing: border-box;
 }
@@ -30,7 +27,6 @@ canvas {
   display: block;
 }
 
-
 /* ========================================= */
 /* START                                     */
 /* ========================================= */
@@ -39,16 +35,12 @@ canvas {
   position: fixed;
   inset: 0;
   z-index: 100;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   padding: 30px;
-
   background: #111;
   color: white;
-
   text-align: center;
 }
 
@@ -64,30 +56,22 @@ canvas {
 
 #start p {
   margin: 0 0 25px;
-
   opacity: 0.75;
-
   font-size: 16px;
   line-height: 1.5;
 }
 
 #start-button {
   width: 100%;
-
   padding: 18px;
-
   border: 0;
   border-radius: 14px;
-
   background: white;
   color: black;
-
   font-size: 17px;
   font-weight: bold;
-
   cursor: pointer;
 }
-
 
 /* ========================================= */
 /* INFO                                      */
@@ -95,34 +79,22 @@ canvas {
 
 #instruction {
   position: fixed;
-
   top: 20px;
   left: 50%;
-
   transform: translateX(-50%);
-
   z-index: 50;
-
   display: none;
-
   width: calc(100% - 30px);
   max-width: 450px;
-
   padding: 14px 18px;
-
   border-radius: 14px;
-
   background: rgba(0,0,0,0.72);
   color: white;
-
   text-align: center;
-
   font-size: 14px;
   line-height: 1.4;
-
   pointer-events: none;
 }
-
 
 /* ========================================= */
 /* DEBUG                                     */
@@ -130,31 +102,22 @@ canvas {
 
 #debug {
   position: fixed;
-
   bottom: 20px;
   left: 20px;
-
   z-index: 50;
-
   display: none;
-
   padding: 10px 14px;
-
   border-radius: 10px;
-
   background: rgba(0,0,0,0.65);
   color: white;
-
   font-family: monospace;
   font-size: 12px;
-
   pointer-events: none;
 }
 
 #model-status {
   margin-top: 5px;
 }
-
 
 /* ========================================= */
 /* ERROR                                     */
@@ -163,34 +126,25 @@ canvas {
 #error {
   position: fixed;
   inset: 0;
-
   z-index: 200;
-
   display: none;
   align-items: center;
   justify-content: center;
-
   padding: 30px;
-
   background: #111;
   color: white;
-
   text-align: center;
 }
-
 </style>
 </head>
 
-
 <body>
-
 
 <!-- ======================================= -->
 <!-- START                                   -->
 <!-- ======================================= -->
 
 <div id="start">
-
   <div id="start-inner">
 
     <h1>Wystawa AR</h1>
@@ -211,7 +165,6 @@ canvas {
     </button>
 
   </div>
-
 </div>
 
 
@@ -229,14 +182,12 @@ canvas {
 <!-- ======================================= -->
 
 <div id="debug">
-
   RUCH:
   <span id="distance">0.00</span> m
 
   <div id="model-status">
     MODELE: 0 / 4
   </div>
-
 </div>
 
 
@@ -245,17 +196,11 @@ canvas {
 <!-- ======================================= -->
 
 <div id="error">
-
   <div>
-
     <h2>AR niedostępne</h2>
-
     <p id="error-text"></p>
-
   </div>
-
 </div>
-
 
 
 <!-- ======================================= -->
@@ -265,13 +210,11 @@ canvas {
 <script type="importmap">
 {
   "imports": {
-
     "three":
       "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
 
     "three/addons/":
       "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
-
   }
 }
 </script>
@@ -284,7 +227,6 @@ import * as THREE from "three";
 import {
   GLTFLoader
 } from "three/addons/loaders/GLTFLoader.js";
-
 
 
 /* ========================================= */
@@ -316,7 +258,6 @@ const errorText =
   document.getElementById("error-text");
 
 
-
 /* ========================================= */
 /*                                           */
 /* KONFIGURACJA RZEŹB                        */
@@ -324,7 +265,6 @@ const errorText =
 /* ========================================= */
 
 /*
-
   POSITION:
 
   x = lewo / prawo
@@ -345,49 +285,32 @@ const errorText =
   ROTATION:
 
   Podajesz w stopniach.
-
 */
 
-
 const models = [
-
 
   /* ======================================= */
   /* RZEŹBA 1                                */
   /* ======================================= */
 
   {
-
     url:
       "https://cdn.tinyglb.com/models/7f210788d6204cf09324b3655d9bead3.glb",
 
-
     position: {
-
       x: 5.5,
-
       y: 4.5,
-
       z: 0
-
     },
-
 
     scale: 7,
 
-
     rotation: {
-
       x: 0,
-
       y: 0.5,
-
       z: 0
-
     }
-
   },
-
 
 
   /* ======================================= */
@@ -395,37 +318,23 @@ const models = [
   /* ======================================= */
 
   {
-
     url:
       "https://cdn.tinyglb.com/models/778255d1a4ea48e8b0d28b870625a541.glb",
 
-
     position: {
-
       x: -5,
-
       y: 1,
-
       z: 0
-
     },
-
 
     scale: 7,
 
-
     rotation: {
-
       x: 0,
-
       y: 0.5,
-
       z: 0
-
     }
-
   },
-
 
 
   /* ======================================= */
@@ -433,37 +342,23 @@ const models = [
   /* ======================================= */
 
   {
-
     url:
       "https://cdn.tinyglb.com/models/d0b8347d52844ca1a2b58121fb976274.glb",
 
-
     position: {
-
       x: 0,
-
       y: 0,
-
       z: 0
-
     },
-
 
     scale: 7.5,
 
-
     rotation: {
-
       x: 0,
-
       y: 0,
-
       z: 0
-
     }
-
   },
-
 
 
   /* ======================================= */
@@ -471,40 +366,25 @@ const models = [
   /* ======================================= */
 
   {
-
     url:
       "https://cdn.tinyglb.com/models/cc241f3348914cccb0ee27be60c3d30f.glb",
 
-
     position: {
-
       x: 0,
-
       y: -1,
-
       z: -0.2
-
     },
-
 
     scale: 3,
 
-
     rotation: {
-
       x: 90,
-
       y: 0,
-
       z: 0
-
     }
-
   }
 
-
 ];
-
 
 
 /* ========================================= */
@@ -514,21 +394,14 @@ const models = [
 const scene =
   new THREE.Scene();
 
-
 const camera =
   new THREE.PerspectiveCamera(
-
     70,
-
     window.innerWidth /
     window.innerHeight,
-
     0.01,
-
     100
-
   );
-
 
 
 /* ========================================= */
@@ -537,58 +410,37 @@ const camera =
 
 const renderer =
   new THREE.WebGLRenderer({
-
     antialias: true,
-
     alpha: true
-
   });
 
-
 renderer.setPixelRatio(
-
   Math.min(
-
     window.devicePixelRatio,
-
     2
-
   )
-
 );
-
 
 renderer.setSize(
-
   window.innerWidth,
-
   window.innerHeight
-
 );
-
 
 renderer.xr.enabled =
   true;
 
-
 renderer.outputColorSpace =
   THREE.SRGBColorSpace;
-
 
 renderer.toneMapping =
   THREE.ACESFilmicToneMapping;
 
-
 renderer.toneMappingExposure =
   1.2;
 
-
 document.body.appendChild(
-
   renderer.domElement
-
 );
-
 
 
 /* ========================================= */
@@ -597,51 +449,31 @@ document.body.appendChild(
 
 const hemisphere =
   new THREE.HemisphereLight(
-
     0xffffff,
-
     0x444444,
-
     3
-
   );
 
-
 scene.add(
-
   hemisphere
-
 );
-
 
 
 const sun =
   new THREE.DirectionalLight(
-
     0xffffff,
-
     3
-
   );
 
-
 sun.position.set(
-
   2,
-
   5,
-
   3
-
 );
-
 
 scene.add(
-
   sun
-
 );
-
 
 
 /* ========================================= */
@@ -650,55 +482,35 @@ scene.add(
 
 const reticleGeometry =
   new THREE.RingGeometry(
-
     0.08,
-
     0.11,
-
     40
-
   );
 
-
 reticleGeometry.rotateX(
-
   -Math.PI / 2
-
 );
-
 
 const reticleMaterial =
   new THREE.MeshBasicMaterial({
-
     color: 0xffffff
-
   });
-
 
 const reticle =
   new THREE.Mesh(
-
     reticleGeometry,
-
     reticleMaterial
-
   );
-
 
 reticle.matrixAutoUpdate =
   false;
 
-
 reticle.visible =
   false;
 
-
 scene.add(
-
   reticle
-
 );
-
 
 
 /* ========================================= */
@@ -708,17 +520,12 @@ scene.add(
 const exhibition =
   new THREE.Group();
 
-
 exhibition.visible =
   false;
 
-
 scene.add(
-
   exhibition
-
 );
-
 
 
 /* ========================================= */
@@ -728,10 +535,8 @@ scene.add(
 const loader =
   new GLTFLoader();
 
-
 let loadedModels =
   0;
-
 
 
 /* ========================================= */
@@ -739,21 +544,16 @@ let loadedModels =
 /* ========================================= */
 
 /*
-  Tutaj przechowujemy AnimationMixer.
-  Aktualnie mixer będzie tworzony dla rzeźby 3.
+  Każdy model posiada własny AnimationMixer.
+
+  Wszystkie mixery zapisujemy tutaj,
+  żeby aktualizować je podczas renderowania.
 */
 
 const mixers = [];
 
-
-/*
-  Clock mierzy czas pomiędzy kolejnymi
-  klatkami renderowania.
-*/
-
 const clock =
   new THREE.Clock();
-
 
 
 /* ========================================= */
@@ -762,48 +562,32 @@ const clock =
 
 function applyFlatShading(model) {
 
-
   model.traverse(
-
     (child) => {
 
-
       if (!child.isMesh) {
-
         return;
-
       }
-
 
       child.castShadow =
         true;
-
 
       child.receiveShadow =
         true;
 
 
-
       const materials =
         Array.isArray(child.material)
-
           ? child.material
-
           : [child.material];
 
 
-
       materials.forEach(
-
         (mat) => {
 
-
           if (!mat) {
-
             return;
-
           }
-
 
 
           /* ================================= */
@@ -813,23 +597,16 @@ function applyFlatShading(model) {
           mat.flatShading =
             true;
 
-
           mat.needsUpdate =
             true;
 
-
         }
-
       );
 
-
     }
-
   );
 
-
 }
-
 
 
 /* ========================================= */
@@ -837,22 +614,15 @@ function applyFlatShading(model) {
 /* ========================================= */
 
 async function loadModel(
-
   config,
-
   number
-
 ) {
-
 
   try {
 
-
     const gltf =
       await loader.loadAsync(
-
         config.url
-
       );
 
 
@@ -860,17 +630,13 @@ async function loadModel(
       gltf.scene;
 
 
-
     /* ===================================== */
     /* SHADE FLAT                            */
     /* ===================================== */
 
     applyFlatShading(
-
       model
-
     );
-
 
 
     /* ===================================== */
@@ -878,15 +644,10 @@ async function loadModel(
     /* ===================================== */
 
     model.position.set(
-
       config.position.x,
-
       config.position.y,
-
       config.position.z
-
     );
-
 
 
     /* ===================================== */
@@ -894,11 +655,8 @@ async function loadModel(
     /* ===================================== */
 
     model.scale.setScalar(
-
       config.scale
-
     );
-
 
 
     /* ===================================== */
@@ -907,132 +665,99 @@ async function loadModel(
 
     model.rotation.set(
 
-
       THREE.MathUtils.degToRad(
-
         config.rotation.x
-
       ),
 
-
       THREE.MathUtils.degToRad(
-
         config.rotation.y
-
       ),
 
-
       THREE.MathUtils.degToRad(
-
         config.rotation.z
-
       )
-
 
     );
 
 
-
     /* ===================================== */
-    /* ANIMACJA RZEŹBY 3                    */
+    /* ANIMACJE                              */
     /* ===================================== */
 
     if (
-
-      number === 3 &&
-
       gltf.animations &&
-
       gltf.animations.length > 0
-
     ) {
-
 
       const mixer =
         new THREE.AnimationMixer(
-
           model
-
         );
 
 
-      const clip =
-        gltf.animations[0];
+      gltf.animations.forEach(
+        (clip) => {
+
+          const action =
+            mixer.clipAction(
+              clip
+            );
 
 
-      const action =
-        mixer.clipAction(
+          /* ================================= */
+          /* ZAPĘTLENIE                        */
+          /* ================================= */
 
-          clip
+          action.setLoop(
+            THREE.LoopRepeat,
+            Infinity
+          );
 
-        );
+          action.clampWhenFinished =
+            false;
+
+          action.enabled =
+            true;
+
+          action.play();
 
 
-      /*
-        Animacja powtarzana bez końca.
-      */
+          console.log(
+            "Uruchomiono animację:",
+            clip.name
+          );
 
-      action.setLoop(
-
-        THREE.LoopRepeat,
-
-        Infinity
-
+        }
       );
 
 
-      action.clampWhenFinished =
-        false;
-
-
-      action.enabled =
-        true;
-
-
-      action.play();
-
+      /* ===================================== */
+      /* ZAPIS MIXERA                          */
+      /* ===================================== */
 
       mixers.push(
-
         mixer
-
       );
 
 
       console.log(
-
-        "Animacja rzeźby 3 uruchomiona:",
-
-        clip.name,
-
-        "czas:",
-
-        clip.duration,
-
-        "sekund"
-
+        "Model " +
+        number +
+        " posiada " +
+        gltf.animations.length +
+        " animacji."
       );
 
-
     }
+    else {
 
-
-    else if (
-
-      number === 3
-
-    ) {
-
-
-      console.warn(
-
-        "Rzeźba 3 nie posiada animacji w pliku GLB."
-
+      console.log(
+        "Model " +
+        number +
+        " nie posiada animacji."
       );
 
-
     }
-
 
 
     /* ===================================== */
@@ -1040,70 +765,44 @@ async function loadModel(
     /* ===================================== */
 
     exhibition.add(
-
       model
-
     );
-
 
 
     loadedModels++;
 
-
     modelStatus.innerHTML =
-
       "MODELE: " +
-
       loadedModels +
-
       " / " +
-
       models.length;
 
 
-
     console.log(
-
       "Model " +
-
       number +
-
       " załadowany",
-
       model
-
     );
-
 
   }
 
-
   catch(error) {
 
-
     console.error(
-
       "Błąd modelu " +
-
       number,
-
       error
-
     );
 
 
     modelStatus.innerHTML =
-
       "BŁĄD MODELU " +
-
       number;
-
 
   }
 
-
 }
-
 
 
 /* ========================================= */
@@ -1111,23 +810,15 @@ async function loadModel(
 /* ========================================= */
 
 models.forEach(
-
   (config, index) => {
 
-
     loadModel(
-
       config,
-
       index + 1
-
     );
 
-
   }
-
 );
-
 
 
 /* ========================================= */
@@ -1136,20 +827,13 @@ models.forEach(
 
 const originGeometry =
   new THREE.RingGeometry(
-
     0.15,
-
     0.18,
-
     40
-
   );
 
-
 originGeometry.rotateX(
-
   -Math.PI / 2
-
 );
 
 
@@ -1159,24 +843,17 @@ const origin =
     originGeometry,
 
     new THREE.MeshBasicMaterial({
-
       color: 0xffffff
-
     })
 
   );
 
-
 origin.position.y =
   0.005;
 
-
 exhibition.add(
-
   origin
-
 );
-
 
 
 /* ========================================= */
@@ -1186,22 +863,17 @@ exhibition.add(
 let session =
   null;
 
-
 let referenceSpace =
   null;
-
 
 let viewerSpace =
   null;
 
-
 let hitTestSource =
   null;
 
-
 let exhibitionPlaced =
   false;
-
 
 
 /* ========================================= */
@@ -1211,14 +883,11 @@ let exhibitionPlaced =
 const initialCameraPosition =
   new THREE.Vector3();
 
-
 const currentCameraPosition =
   new THREE.Vector3();
 
-
 let initialPositionSaved =
   false;
-
 
 
 /* ========================================= */
@@ -1227,92 +896,57 @@ let initialPositionSaved =
 
 async function startAR() {
 
-
   if (!navigator.xr) {
 
-
     showError(
-
       "Ta przeglądarka nie obsługuje WebXR."
-
     );
 
-
     return;
-
 
   }
 
 
-
   try {
-
 
     const supported =
       await navigator.xr.isSessionSupported(
-
         "immersive-ar"
-
       );
-
 
 
     if (!supported) {
 
-
       showError(
-
         "To urządzenie nie obsługuje immersive-ar."
-
       );
 
-
       return;
-
 
     }
 
 
-
     session =
       await navigator.xr.requestSession(
-
-
         "immersive-ar",
-
-
         {
 
-
           requiredFeatures: [
-
             "hit-test"
-
           ],
-
 
           optionalFeatures: [
-
             "local-floor",
-
             "dom-overlay"
-
           ],
 
-
           domOverlay: {
-
             root:
               document.body
-
           }
 
-
         }
-
-
       );
-
 
 
     /* ===================================== */
@@ -1320,22 +954,15 @@ async function startAR() {
     /* ===================================== */
 
     renderer.xr.setReferenceSpaceType(
-
       "local"
-
     );
-
 
     await renderer.xr.setSession(
-
       session
-
     );
-
 
     referenceSpace =
       renderer.xr.getReferenceSpace();
-
 
 
     /* ===================================== */
@@ -1344,11 +971,8 @@ async function startAR() {
 
     viewerSpace =
       await session.requestReferenceSpace(
-
         "viewer"
-
       );
-
 
 
     /* ===================================== */
@@ -1357,12 +981,9 @@ async function startAR() {
 
     hitTestSource =
       await session.requestHitTestSource({
-
         space:
           viewerSpace
-
       });
-
 
 
     /* ===================================== */
@@ -1370,22 +991,14 @@ async function startAR() {
     /* ===================================== */
 
     session.addEventListener(
-
       "select",
-
       placeExhibition
-
     );
-
 
     session.addEventListener(
-
       "end",
-
       endSession
-
     );
-
 
 
     /* ===================================== */
@@ -1395,30 +1008,18 @@ async function startAR() {
     start.style.display =
       "none";
 
-
     instruction.style.display =
       "block";
-
 
     debug.style.display =
       "block";
 
 
-
     /* ===================================== */
-    /* CLOCK                                 */
+    /* RESET ZEGARA ANIMACJI                 */
     /* ===================================== */
-
-    /*
-      Resetujemy zegar przy uruchomieniu AR,
-      żeby pierwsza klatka animacji nie dostała
-      bardzo dużej wartości delta.
-    */
 
     clock.start();
-
-    clock.getDelta();
-
 
 
     /* ===================================== */
@@ -1426,38 +1027,25 @@ async function startAR() {
     /* ===================================== */
 
     renderer.setAnimationLoop(
-
       render
-
     );
 
-
   }
-
 
   catch(error) {
 
-
     console.error(
-
       error
-
     );
-
 
     showError(
-
       "Nie udało się uruchomić AR. " +
       "Sprawdź HTTPS i uprawnienia."
-
     );
-
 
   }
 
-
 }
-
 
 
 /* ========================================= */
@@ -1466,20 +1054,13 @@ async function startAR() {
 
 function placeExhibition() {
 
-
   if (!reticle.visible) {
-
     return;
-
   }
-
 
   if (exhibitionPlaced) {
-
     return;
-
   }
-
 
 
   /* ======================================= */
@@ -1489,20 +1070,13 @@ function placeExhibition() {
   const hitPosition =
     new THREE.Vector3();
 
-
   hitPosition.setFromMatrixPosition(
-
     reticle.matrix
-
   );
-
 
   exhibition.position.copy(
-
     hitPosition
-
   );
-
 
 
   /* ======================================= */
@@ -1511,9 +1085,7 @@ function placeExhibition() {
 
   const xrCamera =
     renderer.xr.getCamera(
-
       camera
-
     );
 
 
@@ -1522,9 +1094,7 @@ function placeExhibition() {
 
 
   xrCamera.getWorldDirection(
-
     direction
-
   );
 
 
@@ -1532,36 +1102,25 @@ function placeExhibition() {
     0;
 
 
-
   if (
-
     direction.lengthSq() > 0
-
   ) {
-
 
     direction.normalize();
 
 
     const angle =
       Math.atan2(
-
         direction.x,
-
         direction.z
-
       );
 
 
     exhibition.rotation.y =
-
       angle +
-
       Math.PI;
 
-
   }
-
 
 
   /* ======================================= */
@@ -1571,14 +1130,11 @@ function placeExhibition() {
   exhibition.visible =
     true;
 
-
   exhibitionPlaced =
     true;
 
-
   reticle.visible =
     false;
-
 
 
   /* ======================================= */
@@ -1587,18 +1143,12 @@ function placeExhibition() {
 
   if (session) {
 
-
     session.removeEventListener(
-
       "select",
-
       placeExhibition
-
     );
 
-
   }
-
 
 
   /* ======================================= */
@@ -1609,39 +1159,26 @@ function placeExhibition() {
     renderer.xr.getFrame();
 
 
-
   if (
-
     frame &&
-
     referenceSpace
-
   ) {
-
 
     const viewerPose =
       frame.getViewerPose(
-
         referenceSpace
-
       );
-
 
 
     if (viewerPose) {
 
-
       initialCameraPosition.set(
-
 
         viewerPose.transform.position.x,
 
-
         viewerPose.transform.position.y,
 
-
         viewerPose.transform.position.z
-
 
       );
 
@@ -1649,23 +1186,16 @@ function placeExhibition() {
       initialPositionSaved =
         true;
 
-
     }
-
 
   }
 
 
-
   instruction.innerHTML =
-
     "Wystawa ustawiona.<br>" +
-
     "Możesz chodzić wokół rzeźb.";
 
-
 }
-
 
 
 /* ========================================= */
@@ -1673,16 +1203,12 @@ function placeExhibition() {
 /* ========================================= */
 
 function render(
-
   timestamp,
-
   frame
-
 ) {
 
-
   /* ======================================= */
-  /* ANIMACJA RZEŹBY 3                       */
+  /* ANIMACJE                                */
   /* ======================================= */
 
   const delta =
@@ -1690,21 +1216,14 @@ function render(
 
 
   mixers.forEach(
-
     (mixer) => {
 
-
       mixer.update(
-
         delta
-
       );
 
-
     }
-
   );
-
 
 
   /* ======================================= */
@@ -1712,33 +1231,21 @@ function render(
   /* ======================================= */
 
   if (
-
     frame &&
-
     hitTestSource &&
-
     referenceSpace &&
-
     !exhibitionPlaced
-
   ) {
-
 
     const results =
       frame.getHitTestResults(
-
         hitTestSource
-
       );
 
 
-
     if (
-
       results.length > 0
-
     ) {
-
 
       const hit =
         results[0];
@@ -1746,59 +1253,42 @@ function render(
 
       const pose =
         hit.getPose(
-
           referenceSpace
-
         );
 
 
-
       if (pose) {
-
 
         reticle.visible =
           true;
 
 
         reticle.matrix.fromArray(
-
           pose.transform.matrix
-
         );
 
 
         instruction.innerHTML =
-
           "Podłoga wykryta.<br>" +
-
           "Dotknij ekranu, aby ustawić wystawę.";
-
 
       }
 
-
     }
 
-
     else {
-
 
       reticle.visible =
         false;
 
 
       instruction.innerHTML =
-
         "Szukam podłogi...<br>" +
-
         "Poruszaj telefonem powoli.";
-
 
     }
 
-
   }
-
 
 
   /* ======================================= */
@@ -1806,62 +1296,42 @@ function render(
   /* ======================================= */
 
   if (
-
     frame &&
-
     referenceSpace &&
-
     initialPositionSaved
-
   ) {
-
 
     const viewerPose =
       frame.getViewerPose(
-
         referenceSpace
-
       );
-
 
 
     if (viewerPose) {
 
-
       currentCameraPosition.set(
-
 
         viewerPose.transform.position.x,
 
-
         viewerPose.transform.position.y,
 
-
         viewerPose.transform.position.z
-
 
       );
 
 
-
       const distance =
         currentCameraPosition.distanceTo(
-
           initialCameraPosition
-
         );
-
 
 
       distanceText.textContent =
         distance.toFixed(2);
 
-
     }
 
-
   }
-
 
 
   /* ======================================= */
@@ -1869,16 +1339,11 @@ function render(
   /* ======================================= */
 
   renderer.render(
-
     scene,
-
     camera
-
   );
 
-
 }
-
 
 
 /* ========================================= */
@@ -1887,26 +1352,20 @@ function render(
 
 function endSession() {
 
-
   session =
     null;
-
 
   referenceSpace =
     null;
 
-
   viewerSpace =
     null;
-
 
   hitTestSource =
     null;
 
-
   exhibitionPlaced =
     false;
-
 
   initialPositionSaved =
     false;
@@ -1914,7 +1373,6 @@ function endSession() {
 
   exhibition.visible =
     false;
-
 
   reticle.visible =
     false;
@@ -1924,30 +1382,28 @@ function endSession() {
     "0.00";
 
 
+  /* ======================================= */
+  /* ZATRZYMAJ ZEGAR                         */
+  /* ======================================= */
+
   clock.stop();
 
 
   renderer.setAnimationLoop(
-
     null
-
   );
 
 
   instruction.style.display =
     "none";
 
-
   debug.style.display =
     "none";
-
 
   start.style.display =
     "flex";
 
-
 }
-
 
 
 /* ========================================= */
@@ -1956,21 +1412,16 @@ function endSession() {
 
 function showError(message) {
 
-
   start.style.display =
     "none";
-
 
   errorScreen.style.display =
     "flex";
 
-
   errorText.textContent =
     message;
 
-
 }
-
 
 
 /* ========================================= */
@@ -1978,16 +1429,11 @@ function showError(message) {
 /* ========================================= */
 
 window.addEventListener(
-
   "resize",
-
   () => {
 
-
     camera.aspect =
-
       window.innerWidth /
-
       window.innerHeight;
 
 
@@ -1995,18 +1441,12 @@ window.addEventListener(
 
 
     renderer.setSize(
-
       window.innerWidth,
-
       window.innerHeight
-
     );
 
-
   }
-
 );
-
 
 
 /* ========================================= */
@@ -2014,11 +1454,8 @@ window.addEventListener(
 /* ========================================= */
 
 startButton.addEventListener(
-
   "click",
-
   startAR
-
 );
 
 </script>
