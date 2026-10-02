@@ -2,10 +2,12 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
+
 <meta
   name="viewport"
   content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
 >
+
 <title>WebAR Exhibition</title>
 
 <style>
@@ -119,6 +121,10 @@ canvas {
   margin-top: 5px;
 }
 
+#animation-status {
+  margin-top: 5px;
+}
+
 /* ========================================= */
 /* ERROR                                     */
 /* ========================================= */
@@ -139,16 +145,13 @@ canvas {
 <script type="importmap">
 {
   "imports": {
-    "three":
-      "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
-
-    "three/addons/":
-      "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+    "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
   }
 }
 </script>
-  <script type="module" crossorigin src="/assets/index-ByGQ3DKp.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/three-0N6az7ky.js">
+  <script type="module" crossorigin src="/assets/index-DnJ3Q7gT.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/three-0MkAwK2e.js">
 </head>
 
 <body>
@@ -158,6 +161,7 @@ canvas {
 <!-- ======================================= -->
 
 <div id="start">
+
   <div id="start-inner">
 
     <h1>Wystawa AR</h1>
@@ -178,6 +182,7 @@ canvas {
     </button>
 
   </div>
+
 </div>
 
 
@@ -195,12 +200,18 @@ canvas {
 <!-- ======================================= -->
 
 <div id="debug">
+
   RUCH:
   <span id="distance">0.00</span> m
 
   <div id="model-status">
     MODELE: 0 / 4
   </div>
+
+  <div id="animation-status">
+    ANIMACJE: 0
+  </div>
+
 </div>
 
 
@@ -209,10 +220,15 @@ canvas {
 <!-- ======================================= -->
 
 <div id="error">
+
   <div>
+
     <h2>AR niedostępne</h2>
+
     <p id="error-text"></p>
+
   </div>
+
 </div>
 
 

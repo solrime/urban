@@ -2,10 +2,12 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
+
 <meta
   name="viewport"
   content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
 >
+
 <title>WebAR Exhibition</title>
 
 <style>
@@ -119,6 +121,10 @@ canvas {
   margin-top: 5px;
 }
 
+#animation-status {
+  margin-top: 5px;
+}
+
 /* ========================================= */
 /* ERROR                                     */
 /* ========================================= */
@@ -145,6 +151,7 @@ canvas {
 <!-- ======================================= -->
 
 <div id="start">
+
   <div id="start-inner">
 
     <h1>Wystawa AR</h1>
@@ -165,6 +172,7 @@ canvas {
     </button>
 
   </div>
+
 </div>
 
 
@@ -182,12 +190,18 @@ canvas {
 <!-- ======================================= -->
 
 <div id="debug">
+
   RUCH:
   <span id="distance">0.00</span> m
 
   <div id="model-status">
     MODELE: 0 / 4
   </div>
+
+  <div id="animation-status">
+    ANIMACJE: 0
+  </div>
+
 </div>
 
 
@@ -196,10 +210,15 @@ canvas {
 <!-- ======================================= -->
 
 <div id="error">
+
   <div>
+
     <h2>AR niedostępne</h2>
+
     <p id="error-text"></p>
+
   </div>
+
 </div>
 
 
@@ -210,11 +229,8 @@ canvas {
 <script type="importmap">
 {
   "imports": {
-    "three":
-      "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
-
-    "three/addons/":
-      "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+    "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
   }
 }
 </script>
@@ -251,6 +267,9 @@ const distanceText =
 const modelStatus =
   document.getElementById("model-status");
 
+const animationStatus =
+  document.getElementById("animation-status");
+
 const errorScreen =
   document.getElementById("error");
 
@@ -259,9 +278,7 @@ const errorText =
 
 
 /* ========================================= */
-/*                                           */
 /* KONFIGURACJA RZEŹB                        */
-/*                                           */
 /* ========================================= */
 
 /*
@@ -394,6 +411,7 @@ const models = [
 const scene =
   new THREE.Scene();
 
+
 const camera =
   new THREE.PerspectiveCamera(
     70,
@@ -414,6 +432,7 @@ const renderer =
     alpha: true
   });
 
+
 renderer.setPixelRatio(
   Math.min(
     window.devicePixelRatio,
@@ -421,22 +440,28 @@ renderer.setPixelRatio(
   )
 );
 
+
 renderer.setSize(
   window.innerWidth,
   window.innerHeight
 );
 
+
 renderer.xr.enabled =
   true;
+
 
 renderer.outputColorSpace =
   THREE.SRGBColorSpace;
 
+
 renderer.toneMapping =
   THREE.ACESFilmicToneMapping;
 
+
 renderer.toneMappingExposure =
   1.2;
+
 
 document.body.appendChild(
   renderer.domElement
@@ -454,6 +479,7 @@ const hemisphere =
     3
   );
 
+
 scene.add(
   hemisphere
 );
@@ -465,11 +491,13 @@ const sun =
     3
   );
 
+
 sun.position.set(
   2,
   5,
   3
 );
+
 
 scene.add(
   sun
@@ -487,14 +515,17 @@ const reticleGeometry =
     40
   );
 
+
 reticleGeometry.rotateX(
   -Math.PI / 2
 );
+
 
 const reticleMaterial =
   new THREE.MeshBasicMaterial({
     color: 0xffffff
   });
+
 
 const reticle =
   new THREE.Mesh(
@@ -502,11 +533,14 @@ const reticle =
     reticleMaterial
   );
 
+
 reticle.matrixAutoUpdate =
   false;
 
+
 reticle.visible =
   false;
+
 
 scene.add(
   reticle
@@ -520,8 +554,10 @@ scene.add(
 const exhibition =
   new THREE.Group();
 
+
 exhibition.visible =
   false;
+
 
 scene.add(
   exhibition
@@ -535,6 +571,7 @@ scene.add(
 const loader =
   new GLTFLoader();
 
+
 let loadedModels =
   0;
 
@@ -544,16 +581,29 @@ let loadedModels =
 /* ========================================= */
 
 /*
-  Każdy model posiada własny AnimationMixer.
+  Każdy GLB dostaje własny AnimationMixer.
 
-  Wszystkie mixery zapisujemy tutaj,
-  żeby aktualizować je podczas renderowania.
+  Mixery muszą być aktualizowane w każdej
+  klatce renderowania.
 */
 
 const mixers = [];
 
-const clock =
-  new THREE.Clock();
+
+/*
+  Timestamp poprzedniej klatki WebXR.
+*/
+
+let lastTimestamp =
+  null;
+
+
+/*
+  Licznik znalezionych klipów animacji.
+*/
+
+let loadedAnimations =
+  0;
 
 
 /* ========================================= */
@@ -569,8 +619,10 @@ function applyFlatShading(model) {
         return;
       }
 
+
       child.castShadow =
         true;
+
 
       child.receiveShadow =
         true;
@@ -590,12 +642,9 @@ function applyFlatShading(model) {
           }
 
 
-          /* ================================= */
-          /* SHADE FLAT                        */
-          /* ================================= */
-
           mat.flatShading =
             true;
+
 
           mat.needsUpdate =
             true;
@@ -604,6 +653,149 @@ function applyFlatShading(model) {
       );
 
     }
+  );
+
+}
+
+
+/* ========================================= */
+/* URUCHOM ANIMACJE MODELU                   */
+/* ========================================= */
+
+function startModelAnimations(
+  gltf,
+  model,
+  number
+) {
+
+  /* ======================================= */
+  /* BRAK ANIMACJI                           */
+  /* ======================================= */
+
+  if (
+    !gltf.animations ||
+    gltf.animations.length === 0
+  ) {
+
+    console.warn(
+      "Model " +
+      number +
+      " nie zawiera animacji."
+    );
+
+    return;
+
+  }
+
+
+  /* ======================================= */
+  /* MIXER                                   */
+  /* ======================================= */
+
+  const mixer =
+    new THREE.AnimationMixer(
+      model
+    );
+
+
+  mixers.push(
+    mixer
+  );
+
+
+  /* ======================================= */
+  /* WSZYSTKIE KLIPY                         */
+  /* ======================================= */
+
+  gltf.animations.forEach(
+    (clip, index) => {
+
+      console.log(
+        "MODEL " +
+        number +
+        " / ANIMACJA " +
+        (index + 1),
+        {
+          name: clip.name,
+          duration: clip.duration,
+          tracks: clip.tracks.length
+        }
+      );
+
+
+      const action =
+        mixer.clipAction(
+          clip
+        );
+
+
+      /* ===================================== */
+      /* RESET                                 */
+      /* ===================================== */
+
+      action.reset();
+
+
+      /* ===================================== */
+      /* LOOP                                  */
+      /* ===================================== */
+
+      action.setLoop(
+        THREE.LoopRepeat,
+        Infinity
+      );
+
+
+      /* ===================================== */
+      /* PARAMETRY                             */
+      /* ===================================== */
+
+      action.enabled =
+        true;
+
+
+      action.paused =
+        false;
+
+
+      action.clampWhenFinished =
+        false;
+
+
+      action.setEffectiveWeight(
+        1
+      );
+
+
+      action.setEffectiveTimeScale(
+        1
+      );
+
+
+      /* ===================================== */
+      /* PLAY                                  */
+      /* ===================================== */
+
+      action.play();
+
+
+      loadedAnimations++;
+
+
+      animationStatus.textContent =
+        "ANIMACJE: " +
+        loadedAnimations;
+
+    }
+  );
+
+
+  console.log(
+    "Model " +
+    number +
+    " — uruchomiono " +
+    gltf.animations.length +
+    " animacji."
   );
 
 }
@@ -620,6 +812,10 @@ async function loadModel(
 
   try {
 
+    /* ===================================== */
+    /* WCZYTYWANIE                           */
+    /* ===================================== */
+
     const gltf =
       await loader.loadAsync(
         config.url
@@ -628,6 +824,27 @@ async function loadModel(
 
     const model =
       gltf.scene;
+
+
+    /* ===================================== */
+    /* DEBUG GLTF                            */
+    /* ===================================== */
+
+    console.log(
+      "================================"
+    );
+
+
+    console.log(
+      "GLTF MODEL " + number,
+      gltf
+    );
+
+
+    console.log(
+      "ANIMACJE MODELU " + number,
+      gltf.animations
+    );
 
 
     /* ===================================== */
@@ -681,86 +898,6 @@ async function loadModel(
 
 
     /* ===================================== */
-    /* ANIMACJE                              */
-    /* ===================================== */
-
-    if (
-      gltf.animations &&
-      gltf.animations.length > 0
-    ) {
-
-      const mixer =
-        new THREE.AnimationMixer(
-          model
-        );
-
-
-      gltf.animations.forEach(
-        (clip) => {
-
-          const action =
-            mixer.clipAction(
-              clip
-            );
-
-
-          /* ================================= */
-          /* ZAPĘTLENIE                        */
-          /* ================================= */
-
-          action.setLoop(
-            THREE.LoopRepeat,
-            Infinity
-          );
-
-          action.clampWhenFinished =
-            false;
-
-          action.enabled =
-            true;
-
-          action.play();
-
-
-          console.log(
-            "Uruchomiono animację:",
-            clip.name
-          );
-
-        }
-      );
-
-
-      /* ===================================== */
-      /* ZAPIS MIXERA                          */
-      /* ===================================== */
-
-      mixers.push(
-        mixer
-      );
-
-
-      console.log(
-        "Model " +
-        number +
-        " posiada " +
-        gltf.animations.length +
-        " animacji."
-      );
-
-    }
-    else {
-
-      console.log(
-        "Model " +
-        number +
-        " nie posiada animacji."
-      );
-
-    }
-
-
-    /* ===================================== */
     /* DODAJ DO WYSTAWY                      */
     /* ===================================== */
 
@@ -769,9 +906,25 @@ async function loadModel(
     );
 
 
+    /* ===================================== */
+    /* URUCHOM ANIMACJE                      */
+    /* ===================================== */
+
+    startModelAnimations(
+      gltf,
+      model,
+      number
+    );
+
+
+    /* ===================================== */
+    /* MODEL ZAŁADOWANY                      */
+    /* ===================================== */
+
     loadedModels++;
 
-    modelStatus.innerHTML =
+
+    modelStatus.textContent =
       "MODELE: " +
       loadedModels +
       " / " +
@@ -781,8 +934,7 @@ async function loadModel(
     console.log(
       "Model " +
       number +
-      " załadowany",
-      model
+      " załadowany."
     );
 
   }
@@ -796,7 +948,7 @@ async function loadModel(
     );
 
 
-    modelStatus.innerHTML =
+    modelStatus.textContent =
       "BŁĄD MODELU " +
       number;
 
@@ -832,6 +984,7 @@ const originGeometry =
     40
   );
 
+
 originGeometry.rotateX(
   -Math.PI / 2
 );
@@ -848,8 +1001,10 @@ const origin =
 
   );
 
+
 origin.position.y =
   0.005;
+
 
 exhibition.add(
   origin
@@ -863,14 +1018,18 @@ exhibition.add(
 let session =
   null;
 
+
 let referenceSpace =
   null;
+
 
 let viewerSpace =
   null;
 
+
 let hitTestSource =
   null;
+
 
 let exhibitionPlaced =
   false;
@@ -883,8 +1042,10 @@ let exhibitionPlaced =
 const initialCameraPosition =
   new THREE.Vector3();
 
+
 const currentCameraPosition =
   new THREE.Vector3();
+
 
 let initialPositionSaved =
   false;
@@ -895,6 +1056,10 @@ let initialPositionSaved =
 /* ========================================= */
 
 async function startAR() {
+
+  /* ======================================= */
+  /* WEBXR SUPPORT                           */
+  /* ======================================= */
 
   if (!navigator.xr) {
 
@@ -908,6 +1073,10 @@ async function startAR() {
 
 
   try {
+
+    /* ===================================== */
+    /* IMMERSIVE AR SUPPORT                  */
+    /* ===================================== */
 
     const supported =
       await navigator.xr.isSessionSupported(
@@ -925,6 +1094,10 @@ async function startAR() {
 
     }
 
+
+    /* ===================================== */
+    /* SESSION                               */
+    /* ===================================== */
 
     session =
       await navigator.xr.requestSession(
@@ -957,9 +1130,11 @@ async function startAR() {
       "local"
     );
 
+
     await renderer.xr.setSession(
       session
     );
+
 
     referenceSpace =
       renderer.xr.getReferenceSpace();
@@ -995,6 +1170,7 @@ async function startAR() {
       placeExhibition
     );
 
+
     session.addEventListener(
       "end",
       endSession
@@ -1008,18 +1184,21 @@ async function startAR() {
     start.style.display =
       "none";
 
+
     instruction.style.display =
       "block";
+
 
     debug.style.display =
       "block";
 
 
     /* ===================================== */
-    /* RESET ZEGARA ANIMACJI                 */
+    /* RESET CZASU ANIMACJI                  */
     /* ===================================== */
 
-    clock.start();
+    lastTimestamp =
+      null;
 
 
     /* ===================================== */
@@ -1038,6 +1217,7 @@ async function startAR() {
       error
     );
 
+
     showError(
       "Nie udało się uruchomić AR. " +
       "Sprawdź HTTPS i uprawnienia."
@@ -1054,9 +1234,18 @@ async function startAR() {
 
 function placeExhibition() {
 
+  /* ======================================= */
+  /* MUSI BYĆ HIT TEST                       */
+  /* ======================================= */
+
   if (!reticle.visible) {
     return;
   }
+
+
+  /* ======================================= */
+  /* TYLKO RAZ                               */
+  /* ======================================= */
 
   if (exhibitionPlaced) {
     return;
@@ -1070,9 +1259,11 @@ function placeExhibition() {
   const hitPosition =
     new THREE.Vector3();
 
+
   hitPosition.setFromMatrixPosition(
     reticle.matrix
   );
+
 
   exhibition.position.copy(
     hitPosition
@@ -1130,8 +1321,10 @@ function placeExhibition() {
   exhibition.visible =
     true;
 
+
   exhibitionPlaced =
     true;
+
 
   reticle.visible =
     false;
@@ -1191,6 +1384,10 @@ function placeExhibition() {
   }
 
 
+  /* ======================================= */
+  /* INFO                                    */
+  /* ======================================= */
+
   instruction.innerHTML =
     "Wystawa ustawiona.<br>" +
     "Możesz chodzić wokół rzeźb.";
@@ -1211,19 +1408,57 @@ function render(
   /* ANIMACJE                                */
   /* ======================================= */
 
-  const delta =
-    clock.getDelta();
+  /*
+    timestamp pochodzi bezpośrednio
+    z pętli WebXR.
+
+    Zamieniamy milisekundy na sekundy.
+  */
+
+  if (lastTimestamp === null) {
+
+    lastTimestamp =
+      timestamp;
+
+  }
 
 
-  mixers.forEach(
-    (mixer) => {
+  let delta =
+    (timestamp - lastTimestamp) /
+    1000;
 
-      mixer.update(
-        delta
-      );
 
-    }
-  );
+  lastTimestamp =
+    timestamp;
+
+
+  /*
+    Zabezpieczenie przed dużym skokiem czasu,
+    np. po chwilowym zawieszeniu aplikacji.
+  */
+
+  delta =
+    Math.min(
+      Math.max(delta, 0),
+      0.1
+    );
+
+
+  /* ======================================= */
+  /* UPDATE MIXERÓW                          */
+  /* ======================================= */
+
+  for (
+    let i = 0;
+    i < mixers.length;
+    i++
+  ) {
+
+    mixers[i].update(
+      delta
+    );
+
+  }
 
 
   /* ======================================= */
@@ -1355,17 +1590,22 @@ function endSession() {
   session =
     null;
 
+
   referenceSpace =
     null;
+
 
   viewerSpace =
     null;
 
+
   hitTestSource =
     null;
 
+
   exhibitionPlaced =
     false;
+
 
   initialPositionSaved =
     false;
@@ -1373,6 +1613,7 @@ function endSession() {
 
   exhibition.visible =
     false;
+
 
   reticle.visible =
     false;
@@ -1383,11 +1624,16 @@ function endSession() {
 
 
   /* ======================================= */
-  /* ZATRZYMAJ ZEGAR                         */
+  /* RESET CZASU ANIMACJI                    */
   /* ======================================= */
 
-  clock.stop();
+  lastTimestamp =
+    null;
 
+
+  /* ======================================= */
+  /* STOP RENDER                             */
+  /* ======================================= */
 
   renderer.setAnimationLoop(
     null
@@ -1397,8 +1643,10 @@ function endSession() {
   instruction.style.display =
     "none";
 
+
   debug.style.display =
     "none";
+
 
   start.style.display =
     "flex";
@@ -1415,8 +1663,10 @@ function showError(message) {
   start.style.display =
     "none";
 
+
   errorScreen.style.display =
     "flex";
+
 
   errorText.textContent =
     message;
