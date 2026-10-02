@@ -735,6 +735,28 @@ let loadedModels =
 
 
 /* ========================================= */
+/* ANIMACJE                                  */
+/* ========================================= */
+
+/*
+  Tutaj przechowujemy AnimationMixer.
+  Aktualnie mixer będzie tworzony dla rzeźby 3.
+*/
+
+const mixers = [];
+
+
+/*
+  Clock mierzy czas pomiędzy kolejnymi
+  klatkami renderowania.
+*/
+
+const clock =
+  new THREE.Clock();
+
+
+
+/* ========================================= */
 /* SHADE FLAT                                */
 /* ========================================= */
 
@@ -908,6 +930,108 @@ async function loadModel(
 
 
     );
+
+
+
+    /* ===================================== */
+    /* ANIMACJA RZEŹBY 3                    */
+    /* ===================================== */
+
+    if (
+
+      number === 3 &&
+
+      gltf.animations &&
+
+      gltf.animations.length > 0
+
+    ) {
+
+
+      const mixer =
+        new THREE.AnimationMixer(
+
+          model
+
+        );
+
+
+      const clip =
+        gltf.animations[0];
+
+
+      const action =
+        mixer.clipAction(
+
+          clip
+
+        );
+
+
+      /*
+        Animacja powtarzana bez końca.
+      */
+
+      action.setLoop(
+
+        THREE.LoopRepeat,
+
+        Infinity
+
+      );
+
+
+      action.clampWhenFinished =
+        false;
+
+
+      action.enabled =
+        true;
+
+
+      action.play();
+
+
+      mixers.push(
+
+        mixer
+
+      );
+
+
+      console.log(
+
+        "Animacja rzeźby 3 uruchomiona:",
+
+        clip.name,
+
+        "czas:",
+
+        clip.duration,
+
+        "sekund"
+
+      );
+
+
+    }
+
+
+    else if (
+
+      number === 3
+
+    ) {
+
+
+      console.warn(
+
+        "Rzeźba 3 nie posiada animacji w pliku GLB."
+
+      );
+
+
+    }
 
 
 
@@ -1282,6 +1406,22 @@ async function startAR() {
 
 
     /* ===================================== */
+    /* CLOCK                                 */
+    /* ===================================== */
+
+    /*
+      Resetujemy zegar przy uruchomieniu AR,
+      żeby pierwsza klatka animacji nie dostała
+      bardzo dużej wartości delta.
+    */
+
+    clock.start();
+
+    clock.getDelta();
+
+
+
+    /* ===================================== */
     /* RENDER LOOP                           */
     /* ===================================== */
 
@@ -1542,6 +1682,32 @@ function render(
 
 
   /* ======================================= */
+  /* ANIMACJA RZEŹBY 3                       */
+  /* ======================================= */
+
+  const delta =
+    clock.getDelta();
+
+
+  mixers.forEach(
+
+    (mixer) => {
+
+
+      mixer.update(
+
+        delta
+
+      );
+
+
+    }
+
+  );
+
+
+
+  /* ======================================= */
   /* HIT TEST                                */
   /* ======================================= */
 
@@ -1756,6 +1922,9 @@ function endSession() {
 
   distanceText.textContent =
     "0.00";
+
+
+  clock.stop();
 
 
   renderer.setAnimationLoop(
