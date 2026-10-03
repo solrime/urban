@@ -8,7 +8,7 @@
   content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
 >
 
-<title>WebAR Exhibition</title>
+<title>Zakodowane we wzorach</title>
 
 <style>
 * {
@@ -160,7 +160,7 @@ canvas {
       Skieruj telefon na podłogę.
       <br><br>
 
-      Kiedy pojawi się białe kółko,
+      Kiedy pojawi się białe kółko na podłodze,
       dotknij ekranu.
       <br><br>
 
@@ -168,7 +168,7 @@ canvas {
     </p>
 
     <button id="start-button">
-      URUCHOM AR
+      URUCHOM WYSTAWĘ
     </button>
 
   </div>
@@ -189,20 +189,6 @@ canvas {
 <!-- DEBUG                                   -->
 <!-- ======================================= -->
 
-<div id="debug">
-
-  RUCH:
-  <span id="distance">0.00</span> m
-
-  <div id="model-status">
-    MODELE: 0 / 4
-  </div>
-
-  <div id="animation-status">
-    ANIMACJE: 0
-  </div>
-
-</div>
 
 
 <!-- ======================================= -->
@@ -277,37 +263,11 @@ const errorText =
   document.getElementById("error-text");
 
 
-/* ========================================= */
-/* KONFIGURACJA RZEŹB                        */
-/* ========================================= */
-
-/*
-  POSITION:
-
-  x = lewo / prawo
-  y = góra / dół
-  z = przód / tył
-
-  Jednostki = metry.
-
-
-  SCALE:
-
-  1    = 100%
-  0.5  = 50%
-  0.1  = 10%
-  2    = 200%
-
-
-  ROTATION:
-
-  Podajesz w stopniach.
-*/
 
 const models = [
 
   /* ======================================= */
-  /* RZEŹBA 1                                */
+  /* RZEŹBA 1  (BIAŁY LUDZIK)                               */
   /* ======================================= */
 
   {
@@ -331,7 +291,7 @@ const models = [
 
 
   /* ======================================= */
-  /* RZEŹBA 2                                */
+  /* RZEŹBA 2      (CZERWONY LUDZIK)                               */
   /* ======================================= */
 
   {
@@ -382,26 +342,9 @@ const models = [
   /* RZEŹBA 4                                */
   /* ======================================= */
 
-  {
-    url:
-      "https://cdn.tinyglb.com/models/cc241f3348914cccb0ee27be60c3d30f.glb",
 
-    position: {
-      x: 0,
-      y: -1,
-      z: -0.2
-    },
 
-    scale: 3,
 
-    rotation: {
-      x: 90,
-      y: 0,
-      z: 0
-    }
-  }
-
-];
 
 
 /* ========================================= */
