@@ -8,7 +8,7 @@
   content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
 >
 
-<title>WebAR Exhibition</title>
+<title>Zakodowane we wzorach</title>
 
 <style>
 * {
@@ -99,33 +99,6 @@ canvas {
 }
 
 /* ========================================= */
-/* DEBUG                                     */
-/* ========================================= */
-
-#debug {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  z-index: 50;
-  display: none;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: rgba(0,0,0,0.65);
-  color: white;
-  font-family: monospace;
-  font-size: 12px;
-  pointer-events: none;
-}
-
-#model-status {
-  margin-top: 5px;
-}
-
-#animation-status {
-  margin-top: 5px;
-}
-
-/* ========================================= */
 /* ERROR                                     */
 /* ========================================= */
 
@@ -160,7 +133,7 @@ canvas {
       Skieruj telefon na podłogę.
       <br><br>
 
-      Kiedy pojawi się białe kółko,
+      Kiedy pojawi się białe kółko na podłodze,
       dotknij ekranu.
       <br><br>
 
@@ -168,7 +141,7 @@ canvas {
     </p>
 
     <button id="start-button">
-      URUCHOM AR
+      URUCHOM WYSTAWĘ
     </button>
 
   </div>
@@ -182,26 +155,6 @@ canvas {
 
 <div id="instruction">
   Szukam podłogi...
-</div>
-
-
-<!-- ======================================= -->
-<!-- DEBUG                                   -->
-<!-- ======================================= -->
-
-<div id="debug">
-
-  RUCH:
-  <span id="distance">0.00</span> m
-
-  <div id="model-status">
-    MODELE: 0 / 4
-  </div>
-
-  <div id="animation-status">
-    ANIMACJE: 0
-  </div>
-
 </div>
 
 
@@ -258,18 +211,6 @@ const startButton =
 const instruction =
   document.getElementById("instruction");
 
-const debug =
-  document.getElementById("debug");
-
-const distanceText =
-  document.getElementById("distance");
-
-const modelStatus =
-  document.getElementById("model-status");
-
-const animationStatus =
-  document.getElementById("animation-status");
-
 const errorScreen =
   document.getElementById("error");
 
@@ -278,36 +219,13 @@ const errorText =
 
 
 /* ========================================= */
-/* KONFIGURACJA RZEŹB                        */
+/* MODELE                                    */
 /* ========================================= */
-
-/*
-  POSITION:
-
-  x = lewo / prawo
-  y = góra / dół
-  z = przód / tył
-
-  Jednostki = metry.
-
-
-  SCALE:
-
-  1    = 100%
-  0.5  = 50%
-  0.1  = 10%
-  2    = 200%
-
-
-  ROTATION:
-
-  Podajesz w stopniach.
-*/
 
 const models = [
 
   /* ======================================= */
-  /* RZEŹBA 1                                */
+  /* RZEŹBA 1  (BIAŁY LUDZIK)               */
   /* ======================================= */
 
   {
@@ -331,7 +249,7 @@ const models = [
 
 
   /* ======================================= */
-  /* RZEŹBA 2                                */
+  /* RZEŹBA 2  (CZERWONY LUDZIK)             */
   /* ======================================= */
 
   {
@@ -372,30 +290,6 @@ const models = [
 
     rotation: {
       x: 0,
-      y: 0,
-      z: 0
-    }
-  },
-
-
-  /* ======================================= */
-  /* RZEŹBA 4                                */
-  /* ======================================= */
-
-  {
-    url:
-      "https://cdn.tinyglb.com/models/cc241f3348914cccb0ee27be60c3d30f.glb",
-
-    position: {
-      x: 0,
-      y: -1,
-      z: -0.2
-    },
-
-    scale: 3,
-
-    rotation: {
-      x: 90,
       y: 0,
       z: 0
     }
@@ -572,38 +466,14 @@ const loader =
   new GLTFLoader();
 
 
-let loadedModels =
-  0;
-
-
 /* ========================================= */
 /* ANIMACJE                                  */
 /* ========================================= */
 
-/*
-  Każdy GLB dostaje własny AnimationMixer.
-
-  Mixery muszą być aktualizowane w każdej
-  klatce renderowania.
-*/
-
 const mixers = [];
-
-
-/*
-  Timestamp poprzedniej klatki WebXR.
-*/
 
 let lastTimestamp =
   null;
-
-
-/*
-  Licznik znalezionych klipów animacji.
-*/
-
-let loadedAnimations =
-  0;
 
 
 /* ========================================= */
@@ -668,10 +538,6 @@ function startModelAnimations(
   number
 ) {
 
-  /* ======================================= */
-  /* BRAK ANIMACJI                           */
-  /* ======================================= */
-
   if (
     !gltf.animations ||
     gltf.animations.length === 0
@@ -688,10 +554,6 @@ function startModelAnimations(
   }
 
 
-  /* ======================================= */
-  /* MIXER                                   */
-  /* ======================================= */
-
   const mixer =
     new THREE.AnimationMixer(
       model
@@ -702,10 +564,6 @@ function startModelAnimations(
     mixer
   );
 
-
-  /* ======================================= */
-  /* WSZYSTKIE KLIPY                         */
-  /* ======================================= */
 
   gltf.animations.forEach(
     (clip, index) => {
@@ -729,26 +587,14 @@ function startModelAnimations(
         );
 
 
-      /* ===================================== */
-      /* RESET                                 */
-      /* ===================================== */
-
       action.reset();
 
-
-      /* ===================================== */
-      /* LOOP                                  */
-      /* ===================================== */
 
       action.setLoop(
         THREE.LoopRepeat,
         Infinity
       );
 
-
-      /* ===================================== */
-      /* PARAMETRY                             */
-      /* ===================================== */
 
       action.enabled =
         true;
@@ -772,30 +618,9 @@ function startModelAnimations(
       );
 
 
-      /* ===================================== */
-      /* PLAY                                  */
-      /* ===================================== */
-
       action.play();
 
-
-      loadedAnimations++;
-
-
-      animationStatus.textContent =
-        "ANIMACJE: " +
-        loadedAnimations;
-
     }
-  );
-
-
-  console.log(
-    "Model " +
-    number +
-    " — uruchomiono " +
-    gltf.animations.length +
-    " animacji."
   );
 
 }
@@ -812,10 +637,6 @@ async function loadModel(
 
   try {
 
-    /* ===================================== */
-    /* WCZYTYWANIE                           */
-    /* ===================================== */
-
     const gltf =
       await loader.loadAsync(
         config.url
@@ -824,15 +645,6 @@ async function loadModel(
 
     const model =
       gltf.scene;
-
-
-    /* ===================================== */
-    /* DEBUG GLTF                            */
-    /* ===================================== */
-
-    console.log(
-      "================================"
-    );
 
 
     console.log(
@@ -847,18 +659,10 @@ async function loadModel(
     );
 
 
-    /* ===================================== */
-    /* SHADE FLAT                            */
-    /* ===================================== */
-
     applyFlatShading(
       model
     );
 
-
-    /* ===================================== */
-    /* POZYCJA                               */
-    /* ===================================== */
 
     model.position.set(
       config.position.x,
@@ -867,18 +671,10 @@ async function loadModel(
     );
 
 
-    /* ===================================== */
-    /* SKALA                                 */
-    /* ===================================== */
-
     model.scale.setScalar(
       config.scale
     );
 
-
-    /* ===================================== */
-    /* ROTACJA                               */
-    /* ===================================== */
 
     model.rotation.set(
 
@@ -897,38 +693,16 @@ async function loadModel(
     );
 
 
-    /* ===================================== */
-    /* DODAJ DO WYSTAWY                      */
-    /* ===================================== */
-
     exhibition.add(
       model
     );
 
-
-    /* ===================================== */
-    /* URUCHOM ANIMACJE                      */
-    /* ===================================== */
 
     startModelAnimations(
       gltf,
       model,
       number
     );
-
-
-    /* ===================================== */
-    /* MODEL ZAŁADOWANY                      */
-    /* ===================================== */
-
-    loadedModels++;
-
-
-    modelStatus.textContent =
-      "MODELE: " +
-      loadedModels +
-      " / " +
-      models.length;
 
 
     console.log(
@@ -946,11 +720,6 @@ async function loadModel(
       number,
       error
     );
-
-
-    modelStatus.textContent =
-      "BŁĄD MODELU " +
-      number;
 
   }
 
@@ -1036,30 +805,10 @@ let exhibitionPlaced =
 
 
 /* ========================================= */
-/* TRACKING DEBUG                            */
-/* ========================================= */
-
-const initialCameraPosition =
-  new THREE.Vector3();
-
-
-const currentCameraPosition =
-  new THREE.Vector3();
-
-
-let initialPositionSaved =
-  false;
-
-
-/* ========================================= */
 /* START AR                                  */
 /* ========================================= */
 
 async function startAR() {
-
-  /* ======================================= */
-  /* WEBXR SUPPORT                           */
-  /* ======================================= */
 
   if (!navigator.xr) {
 
@@ -1073,10 +822,6 @@ async function startAR() {
 
 
   try {
-
-    /* ===================================== */
-    /* IMMERSIVE AR SUPPORT                  */
-    /* ===================================== */
 
     const supported =
       await navigator.xr.isSessionSupported(
@@ -1094,10 +839,6 @@ async function startAR() {
 
     }
 
-
-    /* ===================================== */
-    /* SESSION                               */
-    /* ===================================== */
 
     session =
       await navigator.xr.requestSession(
@@ -1122,10 +863,6 @@ async function startAR() {
       );
 
 
-    /* ===================================== */
-    /* REFERENCE SPACE                       */
-    /* ===================================== */
-
     renderer.xr.setReferenceSpaceType(
       "local"
     );
@@ -1140,19 +877,11 @@ async function startAR() {
       renderer.xr.getReferenceSpace();
 
 
-    /* ===================================== */
-    /* VIEWER SPACE                          */
-    /* ===================================== */
-
     viewerSpace =
       await session.requestReferenceSpace(
         "viewer"
       );
 
-
-    /* ===================================== */
-    /* HIT TEST                              */
-    /* ===================================== */
 
     hitTestSource =
       await session.requestHitTestSource({
@@ -1160,10 +889,6 @@ async function startAR() {
           viewerSpace
       });
 
-
-    /* ===================================== */
-    /* EVENTS                                */
-    /* ===================================== */
 
     session.addEventListener(
       "select",
@@ -1177,10 +902,6 @@ async function startAR() {
     );
 
 
-    /* ===================================== */
-    /* UI                                    */
-    /* ===================================== */
-
     start.style.display =
       "none";
 
@@ -1189,21 +910,9 @@ async function startAR() {
       "block";
 
 
-    debug.style.display =
-      "block";
-
-
-    /* ===================================== */
-    /* RESET CZASU ANIMACJI                  */
-    /* ===================================== */
-
     lastTimestamp =
       null;
 
-
-    /* ===================================== */
-    /* RENDER LOOP                           */
-    /* ===================================== */
 
     renderer.setAnimationLoop(
       render
@@ -1234,27 +943,15 @@ async function startAR() {
 
 function placeExhibition() {
 
-  /* ======================================= */
-  /* MUSI BYĆ HIT TEST                       */
-  /* ======================================= */
-
   if (!reticle.visible) {
     return;
   }
 
 
-  /* ======================================= */
-  /* TYLKO RAZ                               */
-  /* ======================================= */
-
   if (exhibitionPlaced) {
     return;
   }
 
-
-  /* ======================================= */
-  /* POZYCJA                                 */
-  /* ======================================= */
 
   const hitPosition =
     new THREE.Vector3();
@@ -1269,10 +966,6 @@ function placeExhibition() {
     hitPosition
   );
 
-
-  /* ======================================= */
-  /* OBRÓT WYSTAWY                           */
-  /* ======================================= */
 
   const xrCamera =
     renderer.xr.getCamera(
@@ -1314,10 +1007,6 @@ function placeExhibition() {
   }
 
 
-  /* ======================================= */
-  /* POKAŻ WYSTAWĘ                           */
-  /* ======================================= */
-
   exhibition.visible =
     true;
 
@@ -1330,10 +1019,6 @@ function placeExhibition() {
     false;
 
 
-  /* ======================================= */
-  /* BLOKADA KOLEJNYCH KLIKNIĘĆ              */
-  /* ======================================= */
-
   if (session) {
 
     session.removeEventListener(
@@ -1343,50 +1028,6 @@ function placeExhibition() {
 
   }
 
-
-  /* ======================================= */
-  /* ZAPIS POZYCJI TELEFONU                  */
-  /* ======================================= */
-
-  const frame =
-    renderer.xr.getFrame();
-
-
-  if (
-    frame &&
-    referenceSpace
-  ) {
-
-    const viewerPose =
-      frame.getViewerPose(
-        referenceSpace
-      );
-
-
-    if (viewerPose) {
-
-      initialCameraPosition.set(
-
-        viewerPose.transform.position.x,
-
-        viewerPose.transform.position.y,
-
-        viewerPose.transform.position.z
-
-      );
-
-
-      initialPositionSaved =
-        true;
-
-    }
-
-  }
-
-
-  /* ======================================= */
-  /* INFO                                    */
-  /* ======================================= */
 
   instruction.innerHTML =
     "Wystawa ustawiona.<br>" +
@@ -1403,17 +1044,6 @@ function render(
   timestamp,
   frame
 ) {
-
-  /* ======================================= */
-  /* ANIMACJE                                */
-  /* ======================================= */
-
-  /*
-    timestamp pochodzi bezpośrednio
-    z pętli WebXR.
-
-    Zamieniamy milisekundy na sekundy.
-  */
 
   if (lastTimestamp === null) {
 
@@ -1432,21 +1062,12 @@ function render(
     timestamp;
 
 
-  /*
-    Zabezpieczenie przed dużym skokiem czasu,
-    np. po chwilowym zawieszeniu aplikacji.
-  */
-
   delta =
     Math.min(
       Math.max(delta, 0),
       0.1
     );
 
-
-  /* ======================================= */
-  /* UPDATE MIXERÓW                          */
-  /* ======================================= */
 
   for (
     let i = 0;
@@ -1460,10 +1081,6 @@ function render(
 
   }
 
-
-  /* ======================================= */
-  /* HIT TEST                                */
-  /* ======================================= */
 
   if (
     frame &&
@@ -1526,53 +1143,6 @@ function render(
   }
 
 
-  /* ======================================= */
-  /* DEBUG RUCHU                             */
-  /* ======================================= */
-
-  if (
-    frame &&
-    referenceSpace &&
-    initialPositionSaved
-  ) {
-
-    const viewerPose =
-      frame.getViewerPose(
-        referenceSpace
-      );
-
-
-    if (viewerPose) {
-
-      currentCameraPosition.set(
-
-        viewerPose.transform.position.x,
-
-        viewerPose.transform.position.y,
-
-        viewerPose.transform.position.z
-
-      );
-
-
-      const distance =
-        currentCameraPosition.distanceTo(
-          initialCameraPosition
-        );
-
-
-      distanceText.textContent =
-        distance.toFixed(2);
-
-    }
-
-  }
-
-
-  /* ======================================= */
-  /* RENDER                                  */
-  /* ======================================= */
-
   renderer.render(
     scene,
     camera
@@ -1607,10 +1177,6 @@ function endSession() {
     false;
 
 
-  initialPositionSaved =
-    false;
-
-
   exhibition.visible =
     false;
 
@@ -1619,21 +1185,9 @@ function endSession() {
     false;
 
 
-  distanceText.textContent =
-    "0.00";
-
-
-  /* ======================================= */
-  /* RESET CZASU ANIMACJI                    */
-  /* ======================================= */
-
   lastTimestamp =
     null;
 
-
-  /* ======================================= */
-  /* STOP RENDER                             */
-  /* ======================================= */
 
   renderer.setAnimationLoop(
     null
@@ -1641,10 +1195,6 @@ function endSession() {
 
 
   instruction.style.display =
-    "none";
-
-
-  debug.style.display =
     "none";
 
 
